@@ -11,6 +11,7 @@
     <artifactId>jarkata-dts-client</artifactId>
 
     <name>jarkata-dts-client</name>
+    <description>dts client</description>
     <url>http://www.example.com</url>
 
     <dependencies>
