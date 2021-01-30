@@ -24,13 +24,13 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
         Thread.sleep(random.nextInt(100));
         ByteBuf buffer = Unpooled.buffer(8);
         buffer.writeBytes("00000000".getBytes());
-        ctx.writeAndFlush(buffer);
+        ctx.writeAndFlush(buf);
     }
 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("异常：" + ctx, cause);
         ctx.close();
+        logger.error("异常：" + ctx, cause);
     }
 }
