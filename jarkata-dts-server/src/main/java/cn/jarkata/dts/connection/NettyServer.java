@@ -25,16 +25,16 @@ public class NettyServer {
     public void start() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         EventLoopGroup workLoopGroup = new NioEventLoopGroup(1000);
-
+        //
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
-        bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
-        bootstrap.childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
-        bootstrap.childOption(ChannelOption.SO_RCVBUF, 8 * 1024);
-        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
         bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.group(eventLoopGroup, workLoopGroup);
         bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
+        bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
+        bootstrap.childOption(ChannelOption.SO_SNDBUF, 125 * 1024);
+        bootstrap.childOption(ChannelOption.SO_RCVBUF, 125 * 1024);
+        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
         bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {
             @Override
             protected void initChannel(NioSocketChannel ch) throws Exception {
