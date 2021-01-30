@@ -31,8 +31,6 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        this.channel = ctx.channel();
-        logger.info("channelRead链接：{}", this.channel);
         ByteBuf buf = (ByteBuf) msg;
         this.message = buf.toString(StandardCharsets.UTF_8);
         count.countDown();

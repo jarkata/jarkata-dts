@@ -6,15 +6,19 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NettyConnection {
 
+    private static final Logger logger = LoggerFactory.getLogger(NettyConnection.class);
+
     private String host;
     private int port;
 
-    private ConcurrentHashMap<String, MessageHandler> cache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, MessageHandler> cache = new ConcurrentHashMap<>();
 
     public NettyConnection(String host, int port) {
         this.host = host;
@@ -33,7 +37,10 @@ public class NettyConnection {
             }
         });
         ChannelFuture channelFuture = bootstrap.connect(host, port);
-        channelFuture.sync();
+        ChannelFuture future = channelFuture.sync();
+        future.addListener((listener) -> {
+            logger.info("初始化连接");
+        });
         return handler;
     }
 

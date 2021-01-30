@@ -29,7 +29,7 @@ public class NettyServer {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.group(eventLoopGroup, workLoopGroup);
-        bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+        bootstrap.handler(new LoggingHandler(LogLevel.DEBUG));
         bootstrap.childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT);
         bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
         bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
@@ -40,6 +40,7 @@ public class NettyServer {
             @Override
             protected void initChannel(NioSocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
+
                 pipeline.addLast(new DataTransferHandler());
             }
         });
