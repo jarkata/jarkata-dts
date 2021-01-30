@@ -13,5 +13,11 @@
     <name>jarkata-dts-server</name>
     <url>http://www.jarkata.cn</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
