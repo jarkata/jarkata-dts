@@ -2,9 +2,9 @@ package cn.jarkata.dts.connection;
 
 import cn.jarkata.dts.handler.DataTransferHandler;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
@@ -24,25 +24,25 @@ public class NettyServer {
 
     public void start() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-        EventLoopGroup workLoopGroup = new NioEventLoopGroup();
+        EventLoopGroup workLoopGroup = new NioEventLoopGroup(1000);
 
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
         bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
         bootstrap.childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, 8 * 1024);
-        bootstrap.childOption(ChannelOption.SO_BACKLOG, 8 * 1024);
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.channel(NioServerSocketChannel.class)
-                .group(eventLoopGroup, workLoopGroup)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                    @Override
-                    protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new DataTransferHandler());
-                    }
-                });
+        bootstrap.channel(NioServerSocketChannel.class);
+        bootstrap.group(eventLoopGroup, workLoopGroup);
+        bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+        bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {
+            @Override
+            protected void initChannel(NioSocketChannel ch) throws Exception {
+                ch.config().setAllocator(ByteBufAllocator.DEFAULT);
+                ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(new DataTransferHandler());
+            }
+        });
         try {
             ChannelFuture future = bootstrap.bind(port).sync();
             future.addListener((listener) -> {
