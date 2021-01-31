@@ -1,5 +1,6 @@
 package cn.jarkata.dts.connection;
 
+import cn.jarkata.commons.concurrent.NamedThreadFactory;
 import cn.jarkata.dts.handler.DataTransferHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -9,6 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,24 +25,25 @@ public class NettyServer {
     }
 
     public void start() {
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-        EventLoopGroup workLoopGroup = new NioEventLoopGroup(2000);
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(new NamedThreadFactory("boos-group"));
+
+        EventLoopGroup workLoopGroup = new NioEventLoopGroup(1000, new NamedThreadFactory("work-group"));
         //
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.group(eventLoopGroup, workLoopGroup);
-        bootstrap.handler(new LoggingHandler(LogLevel.DEBUG));
+        bootstrap.handler(new LoggingHandler(LogLevel.INFO));
         bootstrap.childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT);
         bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
         bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
-        bootstrap.childOption(ChannelOption.SO_SNDBUF, 125 * 1024);
-        bootstrap.childOption(ChannelOption.SO_RCVBUF, 125 * 1024);
+        bootstrap.childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
+        bootstrap.childOption(ChannelOption.SO_RCVBUF, 8 * 1024);
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
         bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {
             @Override
             protected void initChannel(NioSocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-
+                pipeline.addLast(new IdleStateHandler(30, 30, 30));
                 pipeline.addLast(new DataTransferHandler());
             }
         });

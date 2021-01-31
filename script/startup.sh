@@ -1,5 +1,5 @@
 
--server
+JAVA_OPS="-server
 -XX:+UseCompressedOops
 -XX:-UseBiasedLocking
 -Xmx4096M
@@ -8,12 +8,15 @@
 -XX:+UseG1GC
 -XX:MaxGCPauseMillis=100
 -XX:+ParallelRefProcEnabled
--XX:ErrorFile=./logs/hs_err_pid%p.log
--Xloggc:./logs/gc/gc.log
+-XX:ErrorFile=./hs_err_pid%p.log
+-Xloggc:./gc.log
 -verbose:gc
--XX:HeapDumpPath=./logs/dump
+-XX:HeapDumpPath=./dump.log
 -XX:+PrintGCDetails
 -XX:+PrintGCDateStamps
 -XX:+HeapDumpOnOutOfMemoryError
 -XX:+DisableExplicitGC
--Dio.netty.net.somaxconn.trySysctl=true
+-Dserver.port=8080
+-Dio.netty.net.somaxconn.trySysctl=true"
+
+java $JAVA_OPS -jar jarkata-dts-server-1.0-SNAPSHOT.jar &
