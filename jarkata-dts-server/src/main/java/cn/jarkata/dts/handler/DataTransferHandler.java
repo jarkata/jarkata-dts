@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DataTransferHandler extends ChannelInboundHandlerAdapter {
@@ -14,9 +15,12 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     private AtomicLong count = new AtomicLong(0);
     private final Logger logger = LoggerFactory.getLogger(DataTransferHandler.class);
 
+    private static final Random random = new Random();
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf) msg;
+        Thread.sleep(random.nextInt(100));
         String json = buf.toString(StandardCharsets.UTF_8);
         ctx.writeAndFlush(buf);
         if (count.getAndIncrement() % 100 == 0) {

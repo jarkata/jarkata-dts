@@ -26,7 +26,6 @@ public class NettyServer {
 
     public void start() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup(new NamedThreadFactory("boos-group"));
-
         EventLoopGroup workLoopGroup = new NioEventLoopGroup(1000, new NamedThreadFactory("work-group"));
         //
         ServerBootstrap bootstrap = new ServerBootstrap();
@@ -38,6 +37,7 @@ public class NettyServer {
         bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
         bootstrap.childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, 8 * 1024);
+//        bootstrap.childOption(ChannelOption.SINGLE_EVENTEXECUTOR_PER_GROUP, false);
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
         bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {
             @Override

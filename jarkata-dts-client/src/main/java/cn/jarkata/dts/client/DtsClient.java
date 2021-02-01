@@ -13,19 +13,14 @@ public class DtsClient {
 
 
     public static void main(String[] args) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(14);
         AtomicLong count = new AtomicLong(0);
-        NettyConnection connection = new NettyConnection("localhost", 8080);
-        for (int index = 0; index < 100; index++) {
-            executorService.submit(() -> {
-                String msg = count.getAndIncrement() + "测试中国";
-                try {
-                    String localhost = connection.write(msg);
-                    System.out.println(msg + "::" + localhost);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+        NettyConnection connection = new NettyConnection("localhost", 8089);
+        String msg = count.getAndIncrement() + "测试中国";
+        try {
+            String localhost = connection.write(msg);
+            System.out.println(msg + "::" + localhost);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
