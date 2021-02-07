@@ -1,0 +1,1 @@
+docker build -t vkarta-v3 -f ../Dockerfile .

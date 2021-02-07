@@ -1,0 +1,1 @@
+docker run --sysctl net.ipv4.tcp_fin_timeout=30 --sysctl net.ipv4.tcp_keepalive_time=1800 --sysctl net.ipv4.tcp_tw_reuse=1 --sysctl net.ipv4.tcp_keepalive_probes=5  -it -p 8080:8080 -v /Users/vkata/code/jarkata-dts/:/opt --name vkarta-t1 vkarta

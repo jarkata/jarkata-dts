@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DataTransferHandler extends ChannelInboundHandlerAdapter {
@@ -17,15 +18,29 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
     private static final Random random = new Random();
 
+    private ExecutorService handlerExecutorService;
+
+
+    public DataTransferHandler(ExecutorService handlerExecutorService) {
+        this.handlerExecutorService = handlerExecutorService;
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf) msg;
-        Thread.sleep(random.nextInt(100));
-        String json = buf.toString(StandardCharsets.UTF_8);
-        ctx.writeAndFlush(buf);
-        if (count.getAndIncrement() % 100 == 0) {
-            logger.info("message:{}", json);
-        }
+        handlerExecutorService.submit(() -> {
+            int logPercent = Integer.parseInt(System.getProperty("log.sample", "100"));
+            String json = buf.toString(StandardCharsets.UTF_8);
+            try {
+                Thread.sleep(random.nextInt(50));
+            } catch (InterruptedException ignored) {
+            }
+            ctx.writeAndFlush(buf);
+            //输出日志-不影响响应
+            if (count.getAndIncrement() % logPercent == 0) {
+                logger.info("message:{}", json);
+            }
+        });
     }
 
 
