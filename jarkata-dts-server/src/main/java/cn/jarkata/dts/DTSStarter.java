@@ -1,7 +1,7 @@
 package cn.jarkata.dts;
 
 
-import cn.jarkata.dts.connection.NettyServer;
+import cn.jarkata.dts.server.NettyServer;
 
 public class DTSStarter {
 
