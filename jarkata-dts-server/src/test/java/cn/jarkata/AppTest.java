@@ -25,6 +25,11 @@ public class AppTest {
      * Rigorous Test :-)
      */
     @Test
+    public void testChar() {
+        System.out.println("3".getBytes(StandardCharsets.UTF_8)[0]);
+    }
+
+    @Test
     public void shouldAnswerWithTrue() throws DecoderException, IOException {
         String hexstring = Hex.encodeHexString("你好，中国\n".getBytes());
         System.out.println(hexstring);

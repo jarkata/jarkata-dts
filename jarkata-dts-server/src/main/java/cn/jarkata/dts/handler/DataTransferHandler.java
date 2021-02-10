@@ -1,8 +1,12 @@
 package cn.jarkata.dts.handler;
 
+import cn.jarkata.dts.file.MappedFile;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,28 +23,22 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     private static final Random random = new Random();
 
     private ExecutorService handlerExecutorService;
+//    private MappedFile mappedFile = null;
 
 
     public DataTransferHandler(ExecutorService handlerExecutorService) {
         this.handlerExecutorService = handlerExecutorService;
+//        mappedFile = new MappedFile("./file/1.log", 1024);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf) msg;
-        handlerExecutorService.submit(() -> {
-            int logPercent = Integer.parseInt(System.getProperty("log.sample", "100"));
-            String json = buf.toString(StandardCharsets.UTF_8);
-            try {
-                Thread.sleep(random.nextInt(50));
-            } catch (InterruptedException ignored) {
-            }
-            ctx.writeAndFlush(buf);
-            //输出日志-不影响响应
-            if (count.getAndIncrement() % logPercent == 0) {
-                logger.info("message:{}", json);
-            }
-        });
+        try {
+            async(ctx, buf);
+        } finally {
+            ReferenceCountUtil.release(buf);
+        }
     }
 
 
@@ -48,5 +46,13 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
         logger.error("异常：" + ctx, cause);
+    }
+
+    private void async(ChannelHandlerContext ctx, ByteBuf buf) {
+        int logPercent = Integer.parseInt(System.getProperty("log.sample", "100"));
+        logger.info("{}", buf.toString(StandardCharsets.UTF_8));
+        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(512, 1024);
+        buffer.writeCharSequence(Hex.encodeHexString("success".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        ctx.writeAndFlush(buffer);
     }
 }

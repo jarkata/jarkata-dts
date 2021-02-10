@@ -15,17 +15,13 @@
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOG_HOME}/dts.%d{yyyy-MM-dd}.log</FileNamePattern>
-            <!--日志文件保留天数-->
-            <MaxHistory>30</MaxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <FileNamePattern>${LOG_HOME}/dts.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
             <MaxFileSize>512MB</MaxFileSize>
-        </triggeringPolicy>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
     </appender>
 
     <!-- 异步输出 -->
@@ -39,6 +35,7 @@
     </appender>
 
     <logger name="io.netty" level="INFO"/>
+    <logger name="cn.jarkata" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="ASYNC"/>
