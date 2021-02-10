@@ -41,9 +41,8 @@ public class NettyServer {
         int workThread = Integer.parseInt(System.getProperty("work.threads", "100"));
         int businessThread = Integer.parseInt(System.getProperty("business.threads", "100"));
 
-        EventLoopGroup eventLoopGroup = null;
-        EventLoopGroup workLoopGroup = null;
-        EventLoopGroup defaultLoopGroup = null;
+        EventLoopGroup eventLoopGroup;
+        EventLoopGroup workLoopGroup;
         if (Epoll.isAvailable()) {
             eventLoopGroup = new EpollEventLoopGroup(new NamedThreadFactory("boos-group"));
             workLoopGroup = new EpollEventLoopGroup(workThread, new NamedThreadFactory("work-group"));
