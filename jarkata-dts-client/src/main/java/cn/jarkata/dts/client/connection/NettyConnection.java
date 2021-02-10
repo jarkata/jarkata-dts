@@ -15,8 +15,8 @@ public class NettyConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyConnection.class);
 
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
 
     private static final ConcurrentHashMap<String, MessageHandler> cache = new ConcurrentHashMap<>();
 

@@ -18,7 +18,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
     private Channel channel;
 
-    private CountDownLatch count = new CountDownLatch(1);
+    private final CountDownLatch count = new CountDownLatch(1);
 
     public MessageHandler() {
     }
