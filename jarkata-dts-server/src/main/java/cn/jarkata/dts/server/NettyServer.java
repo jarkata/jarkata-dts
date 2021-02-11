@@ -65,7 +65,6 @@ public class NettyServer {
         bootstrap.childOption(ChannelOption.SO_SNDBUF, 16 * 1024);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, 16 * 1024);
         bootstrap.childOption(ChannelOption.SINGLE_EVENTEXECUTOR_PER_GROUP, false);
-
         bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
@@ -82,6 +81,10 @@ public class NettyServer {
         } catch (InterruptedException e) {
             logger.info("启动失败：", e);
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            eventLoopGroup.shutdownGracefully();
+            workLoopGroup.shutdownGracefully();
+        }));
 
     }
 
