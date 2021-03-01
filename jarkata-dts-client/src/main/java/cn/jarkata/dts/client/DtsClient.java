@@ -1,6 +1,6 @@
 package cn.jarkata.dts.client;
 
-import cn.jarkata.dts.client.connection.JarkataChannel;
+import cn.jarkata.dts.client.channel.JarkataChannel;
 
 import java.util.concurrent.atomic.AtomicLong;
 
