@@ -1,8 +1,8 @@
 package cn.jarkata.dts.handler;
 
-import cn.jarkata.dts.file.MappedFile;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -50,6 +50,9 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
     private void async(ChannelHandlerContext ctx, ByteBuf buf) {
         int logPercent = Integer.parseInt(System.getProperty("log.sample", "100"));
+        ByteBuf byteBuf = Unpooled.copiedBuffer(buf);
+        String s = Hex.encodeHexString(byteBuf.array());
+        logger.info("DubboHex:{}", s);
         logger.info("{}", buf.toString(StandardCharsets.UTF_8));
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(512, 1024);
         buffer.writeCharSequence(Hex.encodeHexString("success".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);

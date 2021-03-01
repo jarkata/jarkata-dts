@@ -1,9 +1,7 @@
 package cn.jarkata.dts.client;
 
-import cn.jarkata.dts.client.connection.NettyConnection;
+import cn.jarkata.dts.client.connection.JarkataChannel;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -14,7 +12,7 @@ public class DtsClient {
 
     public static void main(String[] args) throws Exception {
         AtomicLong count = new AtomicLong(0);
-        NettyConnection connection = new NettyConnection("localhost", 8089);
+        JarkataChannel connection = new JarkataChannel("192.168.0.103", 20880);
         String msg = count.getAndIncrement() + "测试中国";
         try {
             String localhost = connection.write(msg);
