@@ -2,6 +2,7 @@ package cn.jarkata.dts.client;
 
 import cn.jarkata.dts.client.channel.JarkataChannel;
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -15,7 +16,8 @@ public class DtsClient {
         JarkataChannel connection = new JarkataChannel("192.168.0.103", 20880);
         String msg = count.getAndIncrement() + "测试中国";
         try {
-            String localhost = connection.write(msg);
+            File file = new File("/Users/vkata/code/design/README.md");
+            String localhost = connection.writeFile(file);
             System.out.println(msg + "::" + localhost);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,5 +1,7 @@
 package cn.jarkata.dts.handler;
 
+import cn.jarkata.common.protobuf.ObjectInput;
+import cn.jarkata.common.serializer.FileMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -10,6 +12,9 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -33,12 +38,29 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info("Message:{}", msg);
         ByteBuf buf = (ByteBuf) msg;
         try {
-            async(ctx, buf);
+            int length = buf.readableBytes();
+            logger.info("Buf-length:{}", length);
+            byte[] bytes = new byte[length];
+            buf.readBytes(bytes);
+            ObjectInput input = new ObjectInput(new ByteArrayInputStream(bytes));
+            FileMessage fileMessage = input.readObject();
+            logger.info("File={}", fileMessage);
+            byte[] stream = fileMessage.getStream();
+            BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(stream));
+            FileOutputStream fos = new FileOutputStream("/Users/vkata/" + fileMessage.getFilename());
+            byte[] dist = new byte[1024];
+            int len = 0;
+            while ((len = bis.read(dist)) != -1) {
+                fos.write(dist, 0, len);
+            }
+            fos.close();
         } finally {
             ReferenceCountUtil.release(buf);
         }
+
     }
 
 

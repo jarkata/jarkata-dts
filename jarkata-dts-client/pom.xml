@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>cn.jarkata</groupId>
+            <artifactId>jarkata-dts-protocol</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
         </dependency>

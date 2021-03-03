@@ -31,6 +31,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println(msg);
         ByteBuf buf = (ByteBuf) msg;
         this.message = buf.toString(StandardCharsets.UTF_8);
         count.countDown();
