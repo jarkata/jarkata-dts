@@ -4,8 +4,8 @@ import java.io.*;
 
 public class FileMessage implements Serializable {
 
-    private String filename;
-    private String fileExt;
+    private final String filename;
+    private final String fileExt;
 
     private final byte[] stream;
 
