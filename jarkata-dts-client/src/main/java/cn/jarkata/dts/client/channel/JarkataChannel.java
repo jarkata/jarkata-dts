@@ -1,9 +1,9 @@
 package cn.jarkata.dts.client.channel;
 
-import cn.jarkata.common.protobuf.ObjectOutput;
-import cn.jarkata.common.serializer.FileMessage;
 import cn.jarkata.dts.client.handler.ClientHandlerInitializer;
 import cn.jarkata.dts.client.handler.MessageHandler;
+import cn.jarkata.protobuf.DataMessage;
+import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -14,10 +14,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,22 +62,11 @@ public class JarkataChannel {
         return channel;
     }
 
-    public String write(String msg) throws Exception {
-        Channel channel = getOrCreate();
-        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
-        buf.writeBytes(msg.getBytes(StandardCharsets.UTF_8));
-        buf.writeBytes("#####".getBytes(StandardCharsets.UTF_8));
-        channel.writeAndFlush(buf);
-        return null;
-    }
-
     public String writeFile(File msg) throws Exception {
         Channel channel = getOrCreate();
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput output = new ObjectOutput(bos);
-        output.write(new FileMessage(msg.getName(), ".txt", new FileInputStream(msg)));
-        buf.writeBytes(bos.toByteArray());
+        byte[] bytes = ProtobufUtils.toByteArray(new DataMessage(msg.getPath(), new FileInputStream(msg)));
+        buf.writeBytes(bytes);
         channel.writeAndFlush(buf);
         return null;
     }

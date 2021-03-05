@@ -1,41 +1,39 @@
 package cn.jarkata;
 
-import cn.jarkata.common.protobuf.ObjectInput;
-import cn.jarkata.common.protobuf.ObjectOutput;
-import cn.jarkata.common.serializer.FileMessage;
+import cn.jarkata.protobuf.DataMessage;
+import cn.jarkata.protobuf.utils.ProtobufUtils;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Unit test for simple App.
  */
 public class AppTest {
-    /**
-     * Rigorous Test :-)
-     */
+
     @Test
-    public void shouldAnswerWithTrue() throws IOException {
+    public void testProtoBuf() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-        ObjectOutput output = new ObjectOutput(bos);
-        File file = new File("/Users/vkata/code/design/README.md");
-        FileMessage fileMessage = new FileMessage("README.md", "md", new FileInputStream(file));
-        output.write(fileMessage);
-        output.flushBuffer();
-        bos.flush();
-        byte[] bytes = bos.toByteArray();
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-        ObjectInput input = new ObjectInput(inputStream);
-        FileMessage o = input.readObject();
-        byte[] stream = o.getStream();
-        BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(stream));
-        FileOutputStream fos = new FileOutputStream(new File("./test"));
-        byte[] dist = new byte[1024];
-        int len = 0;
-        while ((len = bis.read(dist)) != -1) {
-            fos.write(dist, 0, len);
+        File file = new File("/Users/vkata/logs/tmp.txt");
+        DataMessage fileMessage = new DataMessage(file.getPath(), new FileInputStream(file));
+        long start = System.currentTimeMillis();
+        byte[] bytes2 = ProtobufUtils.toByteArray(fileMessage);
+        System.out.println(System.currentTimeMillis() - start);
+
+        System.out.println("Proto:" + bytes2.length);
+        long start1 = System.currentTimeMillis();
+
+        try (ObjectOutputStream objs = new ObjectOutputStream(bos)) {
+            objs.writeObject(fileMessage);
         }
-        fos.close();
+        byte[] bytes = bos.toByteArray();
+        System.out.println(System.currentTimeMillis() - start1);
+        System.out.println("Java:" + bytes.length);
+        DataMessage message = (DataMessage) ProtobufUtils.readObject(bytes2);
+        System.out.println(message);
 
     }
 }

@@ -1,7 +1,7 @@
 package cn.jarkata.dts.handler;
 
-import cn.jarkata.common.protobuf.ObjectInput;
-import cn.jarkata.common.serializer.FileMessage;
+import cn.jarkata.protobuf.DataMessage;
+import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -45,14 +46,21 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
             logger.info("Buf-length:{}", length);
             byte[] bytes = new byte[length];
             buf.readBytes(bytes);
-            ObjectInput input = new ObjectInput(new ByteArrayInputStream(bytes));
-            FileMessage fileMessage = input.readObject();
-            logger.info("File={}", fileMessage);
-            byte[] stream = fileMessage.getStream();
+            DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
+            byte[] stream = dataMessage.getData();
+            String filePath = "/Users/vkata/data" + dataMessage.getPath();
+            int index = filePath.lastIndexOf("/");
+            if (index > 0) {
+                String parentPath = filePath.substring(0, index);
+                File dir = new File(parentPath);
+                boolean mkdirs = dir.mkdirs();
+                logger.info("创建结果：{}", mkdirs);
+            }
+
             BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(stream));
-            FileOutputStream fos = new FileOutputStream("/Users/vkata/" + fileMessage.getFilename());
+            FileOutputStream fos = new FileOutputStream(filePath);
             byte[] dist = new byte[1024];
-            int len = 0;
+            int len;
             while ((len = bis.read(dist)) != -1) {
                 fos.write(dist, 0, len);
             }
