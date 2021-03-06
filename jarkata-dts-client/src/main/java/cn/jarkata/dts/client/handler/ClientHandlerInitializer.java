@@ -19,9 +19,9 @@ public class ClientHandlerInitializer extends ChannelInitializer<NioSocketChanne
     @Override
     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
         ChannelPipeline pipeline = nioSocketChannel.pipeline();
-        pipeline.addLast(channelHandler)
-                .addLast(new IdleStateHandler(30, 30, 30));
-        pipeline.addLast(new ProtobufVarint32FrameDecoder());
-        pipeline.addLast(new ProtobufVarint32LengthFieldPrepender());
+        pipeline.addLast(new IdleStateHandler(30, 30, 30))
+                .addLast(new ProtobufVarint32FrameDecoder())
+                .addLast(channelHandler)
+                .addLast(new ProtobufVarint32LengthFieldPrepender());
     }
 }
