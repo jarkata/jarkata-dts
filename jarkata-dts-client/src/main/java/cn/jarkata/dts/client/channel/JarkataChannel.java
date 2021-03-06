@@ -42,6 +42,12 @@ public class JarkataChannel {
         cache.put(cacheKey, channel);
     }
 
+    /**
+     * 创建连接
+     *
+     * @return 连接信息
+     * @throws Exception 获取连接时发生的异常
+     */
     private Channel getChannel() throws Exception {
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         MessageHandler handler = new MessageHandler();
@@ -65,6 +71,12 @@ public class JarkataChannel {
         return handler.getChannel();
     }
 
+    /**
+     * 创建渠道信息
+     *
+     * @return 渠道对象
+     * @throws Exception 发生异常时抛出此异常
+     */
     private Channel getOrCreate() throws Exception {
         Channel channel = cache.get(cacheKey);
         if (Objects.isNull(channel)) {
@@ -81,6 +93,12 @@ public class JarkataChannel {
         return channel;
     }
 
+    /**
+     * 写文件
+     *
+     * @param msg 文件消息
+     * @throws Exception 写文件异常
+     */
     public void writeFile(DataMessage msg) throws Exception {
         Channel channel = getOrCreate();
         sendFileCount.incrementAndGet();
@@ -97,10 +115,20 @@ public class JarkataChannel {
         }
     }
 
+    /**
+     * 是否完成
+     *
+     * @return true-表示完成,false-表示未完成
+     */
     public boolean isSendFinish() {
         return sendFileCount.get() <= 0;
     }
 
+    /**
+     * 等待完成
+     *
+     * @param timeout
+     */
     public void waitForFinish(long timeout) {
         long start = System.currentTimeMillis();
         while (!isSendFinish()) {
@@ -109,8 +137,9 @@ public class JarkataChannel {
             }
             try {
                 Thread.sleep(100L);
-            } catch (InterruptedException ignored) {
+            } catch (Exception ignored) {
             }
         }
+        logger.info("发送完成结果:{}", isSendFinish());
     }
 }
