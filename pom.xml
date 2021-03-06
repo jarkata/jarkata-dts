@@ -11,6 +11,7 @@
         <module>jarkata-dts-server</module>
         <module>jarkata-dts-client</module>
         <module>jarkata-dts-protocol</module>
+        <module>jarkata-dts-common</module>
     </modules>
 
     <name>jarkata-dts</name>
@@ -45,6 +46,11 @@
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>3.14.0</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.jarkata</groupId>
+                <artifactId>jarkata-dts-common</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.jarkata</groupId>
