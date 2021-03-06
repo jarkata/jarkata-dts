@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_WORK_THREADS;
-import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_WORK_THREADS_DEFUALT_VAL;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_WORK_THREADS_DEFAULT_VAL;
 
 public class NettyServer {
 
@@ -37,7 +37,7 @@ public class NettyServer {
     }
 
     public void start() {
-        int workThread = Integer.parseInt(Env.getProperty(SERVER_WORK_THREADS, SERVER_WORK_THREADS_DEFUALT_VAL));
+        int workThread = Integer.parseInt(Env.getProperty(SERVER_WORK_THREADS, SERVER_WORK_THREADS_DEFAULT_VAL));
 
         EventLoopGroup eventLoopGroup;
         EventLoopGroup workLoopGroup;

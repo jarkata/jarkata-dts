@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ExecutorService;
 
 import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_IO_THREADS;
-import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_IO_THREADS_DEFUALT_VAL;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_IO_THREADS_DEFAULT_VAL;
 
 public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -24,7 +24,7 @@ public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
     private final ExecutorService handlerPoolExecutor;
 
     public DataTransferInitializer() {
-        String ioThreads = Env.getProperty(SERVER_IO_THREADS, SERVER_IO_THREADS_DEFUALT_VAL);
+        String ioThreads = Env.getProperty(SERVER_IO_THREADS, SERVER_IO_THREADS_DEFAULT_VAL);
         int businessThread = Integer.parseInt(ioThreads);
         handlerPoolExecutor = ThreadPoolFactory.newThreadPool("handler",
                 businessThread, businessThread, 10000, 60 * 1000, 60 * 1000);
