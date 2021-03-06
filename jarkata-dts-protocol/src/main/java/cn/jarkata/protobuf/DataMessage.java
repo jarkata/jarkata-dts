@@ -27,13 +27,15 @@ public class DataMessage implements Serializable {
     }
 
     private byte[] toByteArray(InputStream inputStream) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(inputStream);
-        byte[] dist = new byte[1024];
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        int len;
-        while ((len = bis.read(dist)) != -1) {
-            bos.write(dist, 0, len);
+        try (BufferedInputStream bis = new BufferedInputStream(inputStream);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+            byte[] dist = new byte[1024];
+
+            int len;
+            while ((len = bis.read(dist)) != -1) {
+                bos.write(dist, 0, len);
+            }
+            return bos.toByteArray();
         }
-        return bos.toByteArray();
     }
 }
