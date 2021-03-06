@@ -17,9 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class JarkataChannel {
 
@@ -78,27 +76,4 @@ public class JarkataChannel {
         return null;
     }
 
-
-    private byte[] toByteArray(File file) throws IOException {
-        ByteArrayOutputStream bos = null;
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-        ) {
-            bos = new ByteArrayOutputStream();
-            byte[] dist = new byte[1024];
-            int len;
-            while ((len = bis.read(dist)) != -1) {
-                bos.write(dist, 0, len);
-            }
-            return bos.toByteArray();
-        } finally {
-            Optional.ofNullable(bos).ifPresent(stream -> {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    System.err.println("file=" + file.getPath());
-                    e.printStackTrace();
-                }
-            });
-        }
-    }
 }

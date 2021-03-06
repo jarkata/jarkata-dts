@@ -22,7 +22,6 @@ public class ClientHandlerInitializer extends ChannelInitializer<NioSocketChanne
         pipeline.addLast(channelHandler)
                 .addLast(new IdleStateHandler(30, 30, 30));
         pipeline.addLast(new ProtobufVarint32FrameDecoder());
-        pipeline.addLast(new MessageHandler());
         pipeline.addLast(new ProtobufVarint32LengthFieldPrepender());
     }
 }
