@@ -9,30 +9,55 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Hello world!
  */
 public class DtsClient {
     private static final Logger logger = LoggerFactory.getLogger(DtsClient.class);
+    private static final AtomicInteger count = new AtomicInteger(0);
 
     public static void main(String[] args) throws Exception {
+        long start = System.currentTimeMillis();
+        try {
+            transfer();
+        } finally {
+            long dur = System.currentTimeMillis() - start;
+            logger.info("耗时:{}ms", dur);
+        }
+        System.exit(-1);
+    }
 
+    private static void transfer() throws Exception {
         String basePath = Env.getProperty("client.base.path");
         List<String> fileList = FileUtils.getFileList(basePath);
-        logger.info("FileSize={}", fileList.size());
+        logger.info("BasePath={},FileSize={}", basePath, fileList.size());
         String serverHost = Env.getProperty("server.host");
-        String[] split = serverHost.split("\\:");
+        logger.info("服务端地址:{}", serverHost);
+        String[] split = serverHost.split(":");
         assert split.length != 2;
-        JarkataChannel connection = new JarkataChannel(split[0], Integer.parseInt(split[1]));
+        JarkataChannel jarkataChannel = new JarkataChannel(split[0], Integer.parseInt(split[1]));
+        if (basePath.endsWith("/")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+        int index = basePath.lastIndexOf("/");
+        if (index > 0) {
+            basePath = basePath.substring(0, index);
+        }
         for (String path : fileList) {
             String filePath = FileUtils.getRelativePath(basePath, path);
+            logger.info("FilePath={}", filePath);
             byte[] array = IOUtils.toByteArray(new FileInputStream(path));
             DataMessage dataMessage = new DataMessage(filePath, array);
-            connection.writeFile(dataMessage);
+            jarkataChannel.writeFile(dataMessage);
         }
-
+        jarkataChannel.waitForFinish(TimeUnit.MINUTES.toMillis(30));
+        System.exit(-1);
     }
 
 }

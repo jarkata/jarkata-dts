@@ -1,6 +1,7 @@
 package cn.jarkata.dts.server;
 
 import cn.jarkata.commons.concurrent.NamedThreadFactory;
+import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.handler.DataTransferInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -30,12 +31,10 @@ public class NettyServer {
 
     public NettyServer(int port) {
         this.port = port;
-//        ScheduledThreadPoolExecutor report = ThreadPoolFactory.newSchedule("report", 1);
-//        report.scheduleWithFixedDelay(this::report, 1, 1, TimeUnit.SECONDS);
     }
 
     public void start() {
-        int workThread = Integer.parseInt(System.getProperty("work.threads", "100"));
+        int workThread = Integer.parseInt(Env.getProperty("work.threads", "100"));
 
         EventLoopGroup eventLoopGroup;
         EventLoopGroup workLoopGroup;

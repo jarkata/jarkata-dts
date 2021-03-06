@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class JarkataChannel {
 
@@ -28,15 +29,23 @@ public class JarkataChannel {
 
     private static final ConcurrentHashMap<String, Channel> cache = new ConcurrentHashMap<>();
 
-    public JarkataChannel(String host, int port) {
+    private static final AtomicLong sendFileCount = new AtomicLong(0);
+
+    private Channel channel;
+
+    public JarkataChannel(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
+        this.channel = getChannel();
+        String cacheKey = host + "::" + port;
+        cache.put(cacheKey, channel);
     }
 
-    private Channel getChannel() throws InterruptedException {
+    private Channel getChannel() throws Exception {
+        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         MessageHandler handler = new MessageHandler();
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(new NioEventLoopGroup());
+        bootstrap.group(eventLoopGroup);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.option(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
                 .option(ChannelOption.TCP_NODELAY, true)
@@ -50,6 +59,7 @@ public class JarkataChannel {
         future.addListener((listener) -> {
             logger.info("初始化连接");
         });
+        Runtime.getRuntime().addShutdownHook(new Thread(eventLoopGroup::shutdownGracefully));
         return handler.getChannel();
     }
 
@@ -58,11 +68,13 @@ public class JarkataChannel {
         Channel channel = cache.get(cacheKey);
         if (Objects.isNull(channel)) {
             channel = getChannel();
+            this.channel = channel;
             cache.put(cacheKey, channel);
         }
         if (!channel.isOpen()) {
             channel.close();
             channel = getChannel();
+            this.channel = channel;
             cache.put(cacheKey, channel);
         }
         return channel;
@@ -70,15 +82,31 @@ public class JarkataChannel {
 
     public void writeFile(DataMessage msg) throws Exception {
         Channel channel = getOrCreate();
+        sendFileCount.incrementAndGet();
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(1024);
         try {
             byte[] bytes = ProtobufUtils.toByteArray(msg);
             buffer.writeBytes(bytes);
-            channel.writeAndFlush(buffer);
+            channel.writeAndFlush(buffer).addListener((listener) -> {
+                sendFileCount.decrementAndGet();
+            });
         } catch (Exception ex) {
             logger.error("Path=" + msg.getPath(), ex);
             throw ex;
         }
     }
 
+    public boolean isSendFinish() {
+        return sendFileCount.get() <= 0;
+    }
+
+    public void waitForFinish(long timeout) {
+        long start = System.currentTimeMillis();
+        while (!isSendFinish() || System.currentTimeMillis() - start <= timeout) {
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
 }
