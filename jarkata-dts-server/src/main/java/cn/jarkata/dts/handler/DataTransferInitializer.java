@@ -2,6 +2,7 @@ package cn.jarkata.dts.handler;
 
 import cn.jarkata.commons.concurrent.ThreadPoolFactory;
 import cn.jarkata.dts.common.Env;
+import cn.jarkata.dts.constant.JarkataConstant;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
+import static cn.jarkata.dts.constant.JarkataConstant.*;
+
 public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
 
     private final Logger logger = LoggerFactory.getLogger(DataTransferInitializer.class);
@@ -21,7 +24,7 @@ public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
     private final ExecutorService handlerPoolExecutor;
 
     public DataTransferInitializer() {
-        String ioThreads = Env.getProperty("server.io.threads", "100");
+        String ioThreads = Env.getProperty(SERVER_IO_THREADS, SERVER_IO_THREADS_DEFUALT_VAL);
         int businessThread = Integer.parseInt(ioThreads);
         handlerPoolExecutor = ThreadPoolFactory.newThreadPool("handler",
                 businessThread, businessThread, 10000, 60 * 1000, 60 * 1000);

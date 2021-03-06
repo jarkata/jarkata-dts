@@ -2,6 +2,7 @@ package cn.jarkata.dts.handler;
 
 import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.common.utils.FileUtils;
+import cn.jarkata.dts.constant.JarkataConstant;
 import cn.jarkata.protobuf.DataMessage;
 import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.buffer.ByteBuf;
@@ -53,7 +54,7 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
                 buffer.readBytes(bytes);
                 DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
                 byte[] stream = dataMessage.getData();
-                String basePath = Env.getProperty("server.base.path");
+                String basePath = Env.getProperty(JarkataConstant.SERVER_BASE_PATH);
                 String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
                 logger.info("fullPath={}", fullPath);
                 FileUtils.ensureParentPath(fullPath);

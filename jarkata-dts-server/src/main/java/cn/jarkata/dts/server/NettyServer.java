@@ -2,6 +2,7 @@ package cn.jarkata.dts.server;
 
 import cn.jarkata.commons.concurrent.NamedThreadFactory;
 import cn.jarkata.dts.common.Env;
+import cn.jarkata.dts.constant.JarkataConstant;
 import cn.jarkata.dts.handler.DataTransferInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -23,6 +24,8 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static cn.jarkata.dts.constant.JarkataConstant.*;
+
 public class NettyServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
@@ -34,7 +37,7 @@ public class NettyServer {
     }
 
     public void start() {
-        int workThread = Integer.parseInt(Env.getProperty("work.threads", "100"));
+        int workThread = Integer.parseInt(Env.getProperty(SERVER_WORK_THREADS, SERVER_WORK_THREADS_DEFUALT_VAL));
 
         EventLoopGroup eventLoopGroup;
         EventLoopGroup workLoopGroup;
@@ -59,7 +62,7 @@ public class NettyServer {
         bootstrap.childOption(ChannelOption.SINGLE_EVENTEXECUTOR_PER_GROUP, false);
         bootstrap.childHandler(new DataTransferInitializer());
         try {
-            ChannelFuture future = bootstrap.bind(new InetSocketAddress("0.0.0.0", port)).sync();
+            ChannelFuture future = bootstrap.bind(new InetSocketAddress(port)).sync();
             future.addListener((listener) -> {
                 logger.info("启动结果：" + listener.isSuccess());
             });
