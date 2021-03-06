@@ -32,12 +32,13 @@ public class JarkataChannel {
     private static final AtomicLong sendFileCount = new AtomicLong(0);
 
     private Channel channel;
+    private final String cacheKey;
 
     public JarkataChannel(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
         this.channel = getChannel();
-        String cacheKey = host + "::" + port;
+        cacheKey = host + "::" + port;
         cache.put(cacheKey, channel);
     }
 
@@ -64,18 +65,17 @@ public class JarkataChannel {
     }
 
     private Channel getOrCreate() throws Exception {
-        String cacheKey = host + "::" + port;
         Channel channel = cache.get(cacheKey);
         if (Objects.isNull(channel)) {
-            channel = getChannel();
-            this.channel = channel;
-            cache.put(cacheKey, channel);
+            this.channel = getChannel();
+            cache.put(cacheKey, this.channel);
+            return this.channel;
         }
         if (!channel.isOpen()) {
             channel.close();
-            channel = getChannel();
-            this.channel = channel;
-            cache.put(cacheKey, channel);
+            this.channel = getChannel();
+            cache.put(cacheKey, this.channel);
+            return this.channel;
         }
         return channel;
     }

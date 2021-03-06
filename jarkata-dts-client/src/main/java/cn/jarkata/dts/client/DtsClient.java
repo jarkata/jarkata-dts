@@ -9,18 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Hello world!
  */
 public class DtsClient {
     private static final Logger logger = LoggerFactory.getLogger(DtsClient.class);
-    private static final AtomicInteger count = new AtomicInteger(0);
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();

@@ -7,7 +7,6 @@ import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +27,9 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        logger.info("Message:{}", msg);
+        logger.debug("Message:{}", msg);
         ByteBuf buffer = (ByteBuf) msg;
-        try {
-            async(buffer);
-        } finally {
-            ReferenceCountUtil.release(buffer);
-        }
-
+        async(buffer);
     }
 
     @Override
@@ -47,16 +41,16 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     /**
      * 异步执行IO
      *
-     * @param buf
+     * @param buffer
      */
-    private void async(ByteBuf buf) {
+    private void async(ByteBuf buffer) {
         handlerExecutor.execute(() -> {
             long start = System.currentTimeMillis();
             try {
-                int length = buf.readableBytes();
+                int length = buffer.readableBytes();
                 logger.debug("Buf-length:{}", length);
                 byte[] bytes = new byte[length];
-                buf.readBytes(bytes);
+                buffer.readBytes(bytes);
                 DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
                 byte[] stream = dataMessage.getData();
                 String basePath = Env.getProperty("server.base.path");
