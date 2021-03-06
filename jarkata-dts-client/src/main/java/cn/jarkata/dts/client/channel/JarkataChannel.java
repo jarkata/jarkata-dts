@@ -38,7 +38,7 @@ public class JarkataChannel {
         this.host = host;
         this.port = port;
         this.channel = getChannel();
-        cacheKey = host + "::" + port;
+        this.cacheKey = host + "::" + port;
         cache.put(cacheKey, channel);
     }
 
@@ -57,10 +57,11 @@ public class JarkataChannel {
         bootstrap.handler(new ClientHandlerInitializer(handler));
         ChannelFuture channelFuture = bootstrap.connect(host, port);
         ChannelFuture future = channelFuture.sync();
-        future.addListener((listener) -> {
-            logger.info("初始化连接");
-        });
-        Runtime.getRuntime().addShutdownHook(new Thread(eventLoopGroup::shutdownGracefully));
+        future.addListener((listener) -> logger.info("初始化连接"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            eventLoopGroup.shutdownGracefully();
+            logger.info("客户端关闭成功");
+        }));
         return handler.getChannel();
     }
 
@@ -102,7 +103,10 @@ public class JarkataChannel {
 
     public void waitForFinish(long timeout) {
         long start = System.currentTimeMillis();
-        while (!isSendFinish() || System.currentTimeMillis() - start <= timeout) {
+        while (!isSendFinish()) {
+            if (System.currentTimeMillis() - start > timeout) {
+                break;
+            }
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException ignored) {
