@@ -2,7 +2,6 @@ package cn.jarkata.dts.handler;
 
 import cn.jarkata.commons.concurrent.ThreadPoolFactory;
 import cn.jarkata.dts.common.Env;
-import cn.jarkata.dts.constant.JarkataConstant;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -15,7 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
-import static cn.jarkata.dts.constant.JarkataConstant.*;
+import static cn.jarkata.dts.constant.JarkataConstant.SERVER_IO_THREADS;
+import static cn.jarkata.dts.constant.JarkataConstant.SERVER_IO_THREADS_DEFUALT_VAL;
 
 public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
 

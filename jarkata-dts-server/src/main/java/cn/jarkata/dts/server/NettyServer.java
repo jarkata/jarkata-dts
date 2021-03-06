@@ -2,7 +2,6 @@ package cn.jarkata.dts.server;
 
 import cn.jarkata.commons.concurrent.NamedThreadFactory;
 import cn.jarkata.dts.common.Env;
-import cn.jarkata.dts.constant.JarkataConstant;
 import cn.jarkata.dts.handler.DataTransferInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -24,7 +23,8 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static cn.jarkata.dts.constant.JarkataConstant.*;
+import static cn.jarkata.dts.constant.JarkataConstant.SERVER_WORK_THREADS;
+import static cn.jarkata.dts.constant.JarkataConstant.SERVER_WORK_THREADS_DEFUALT_VAL;
 
 public class NettyServer {
 

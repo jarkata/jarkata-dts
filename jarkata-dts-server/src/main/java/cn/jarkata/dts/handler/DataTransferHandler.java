@@ -2,7 +2,6 @@ package cn.jarkata.dts.handler;
 
 import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.common.utils.FileUtils;
-import cn.jarkata.dts.constant.JarkataConstant;
 import cn.jarkata.protobuf.DataMessage;
 import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.buffer.ByteBuf;
@@ -15,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
+
+import static cn.jarkata.dts.constant.JarkataConstant.SERVER_BASE_PATH;
 
 public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
@@ -54,7 +55,7 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
                 buffer.readBytes(bytes);
                 DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
                 byte[] stream = dataMessage.getData();
-                String basePath = Env.getProperty(JarkataConstant.SERVER_BASE_PATH);
+                String basePath = Env.getProperty(SERVER_BASE_PATH);
                 String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
                 logger.info("fullPath={}", fullPath);
                 FileUtils.ensureParentPath(fullPath);
