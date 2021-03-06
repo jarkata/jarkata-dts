@@ -11,7 +11,7 @@ public class DataMessage implements Serializable {
     public DataMessage(String path, InputStream data) throws IOException {
         this.path = path;
         this.data = toByteArray(data);
-        this.size = data.available();
+        this.size = this.data.length;
     }
 
     public String getPath() {
