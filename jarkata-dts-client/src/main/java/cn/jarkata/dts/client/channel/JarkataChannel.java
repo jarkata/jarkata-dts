@@ -11,7 +11,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.ReferenceCountUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,13 +66,10 @@ public class JarkataChannel {
     public String writeFile(File msg) throws Exception {
         Channel channel = getOrCreate();
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
-        try {
-            byte[] bytes = ProtobufUtils.toByteArray(new DataMessage(msg.getPath(), new FileInputStream(msg)));
-            buf.writeBytes(bytes);
-            channel.writeAndFlush(buf);
-        } finally {
-            ReferenceCountUtil.release(buf);
-        }
+        byte[] byteArray = IOUtils.toByteArray(new FileInputStream(msg));
+        byte[] bytes = ProtobufUtils.toByteArray(new DataMessage(msg.getPath(), byteArray));
+        buf.writeBytes(bytes);
+        channel.writeAndFlush(buf);
         return null;
     }
 }
