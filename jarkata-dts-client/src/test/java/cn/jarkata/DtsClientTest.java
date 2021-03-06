@@ -1,9 +1,13 @@
 package cn.jarkata;
 
+import cn.jarkata.dts.client.NettyClient;
 import cn.jarkata.dts.common.Env;
+import cn.jarkata.dts.common.utils.FileUtils;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+
+import static cn.jarkata.dts.common.constant.JarkataConstant.CLIENT_BASE_PATH;
 
 /**
  * Unit test for simple App.
@@ -14,10 +18,12 @@ public class DtsClientTest {
      */
     @Test
     public void shouldAnswerWithTrue() {
-        long millis = TimeUnit.MINUTES.toMillis(30);
-        System.out.println(millis);
-        String property = Env.getProperty("base.path", "/home");
-        System.out.println(property);
-
+        String basePath = Env.getProperty(CLIENT_BASE_PATH);
+        List<String> fileList = FileUtils.getFileList(basePath);
+        for (String fullPath : fileList) {
+            if (NettyClient.allowTransfer(basePath, fullPath)) {
+                continue;
+            }
+        }
     }
 }

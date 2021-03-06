@@ -20,6 +20,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static cn.jarkata.dts.common.constant.JarkataConstant.HOST_SEPARATOR;
+
 public class JarkataChannel {
 
     private static final Logger logger = LoggerFactory.getLogger(JarkataChannel.class);
@@ -34,9 +36,11 @@ public class JarkataChannel {
     private Channel channel;
     private final String cacheKey;
 
-    public JarkataChannel(String host, int port) throws Exception {
-        this.host = host;
-        this.port = port;
+    public JarkataChannel(String serverHost) throws Exception {
+        String[] split = serverHost.split(HOST_SEPARATOR);
+        assert split.length != 2;
+        this.host = split[0];
+        this.port = Integer.parseInt(split[1]);
         this.channel = getChannel();
         this.cacheKey = host + "::" + port;
         cache.put(cacheKey, channel);

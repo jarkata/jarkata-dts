@@ -10,4 +10,7 @@ public final class JarkataConstant {
     public static final String SERVER_PORT_DEFAULT_VAL = "8089";
     public static final String CLIENT_BASE_PATH = "client.base.path";
     public static final String SERVER_HOST = "server.host";
+    public static final String HOST_SEPARATOR = ":";
+    public static final String SUB_DIR_SEP_REGEX = "\\|";
+    public static final String CLIENT_SUB_PATH = "client.sub.path";
 }
