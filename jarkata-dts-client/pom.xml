@@ -71,6 +71,8 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>config/*</exclude>
+                                        <exclude>logback.xml</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
