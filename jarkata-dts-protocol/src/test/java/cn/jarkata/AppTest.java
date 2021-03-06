@@ -2,6 +2,7 @@ package cn.jarkata;
 
 import cn.jarkata.protobuf.DataMessage;
 import cn.jarkata.protobuf.utils.ProtobufUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.*;
@@ -15,7 +16,7 @@ public class AppTest {
     public void testProtoBuf() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         File file = new File("/Users/vkata/logs/tmp.txt");
-        DataMessage fileMessage = new DataMessage(file.getPath(), toByteArray(new FileInputStream(file)));
+        DataMessage fileMessage = new DataMessage(file.getPath(), IOUtils.toByteArray(new FileInputStream(file)));
         long start = System.currentTimeMillis();
         byte[] bytes2 = ProtobufUtils.toByteArray(fileMessage);
         System.out.println(System.currentTimeMillis() - start);
@@ -31,32 +32,5 @@ public class AppTest {
         System.out.println("Java:" + bytes.length);
         DataMessage message = (DataMessage) ProtobufUtils.readObject(bytes2);
         System.out.println(message);
-    }
-
-    private byte[] toByteArray(InputStream inputStream) throws IOException {
-        try (BufferedInputStream bis = new BufferedInputStream(inputStream);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
-            byte[] dist = new byte[1024];
-
-            int len;
-            while ((len = bis.read(dist)) != -1) {
-                bos.write(dist, 0, len);
-            }
-            return bos.toByteArray();
-        }
-    }
-
-
-    private byte[] toByteArray(InputStream inputStream) throws IOException {
-        try (BufferedInputStream bis = new BufferedInputStream(inputStream);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
-            byte[] dist = new byte[1024];
-
-            int len;
-            while ((len = bis.read(dist)) != -1) {
-                bos.write(dist, 0, len);
-            }
-            return bos.toByteArray();
-        }
     }
 }

@@ -11,14 +11,15 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.ReferenceCountUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class JarkataChannel {
 
@@ -63,16 +64,41 @@ public class JarkataChannel {
         return channel;
     }
 
-    public String writeFile(File msg) throws Exception {
+    public String writeFile(DataMessage msg) throws Exception {
         Channel channel = getOrCreate();
-        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
+        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(1024);
         try {
-            byte[] bytes = ProtobufUtils.toByteArray(new DataMessage(msg.getPath(), new FileInputStream(msg)));
-            buf.writeBytes(bytes);
-            channel.writeAndFlush(buf);
-        } finally {
-            ReferenceCountUtil.release(buf);
+            byte[] bytes = ProtobufUtils.toByteArray(msg);
+            buffer.writeBytes(bytes);
+            channel.writeAndFlush(buffer);
+        } catch (Exception ex) {
+            logger.error("Path=" + msg.getPath(), ex);
+            throw ex;
         }
         return null;
+    }
+
+
+    private byte[] toByteArray(File file) throws IOException {
+        ByteArrayOutputStream bos = null;
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+        ) {
+            bos = new ByteArrayOutputStream();
+            byte[] dist = new byte[1024];
+            int len;
+            while ((len = bis.read(dist)) != -1) {
+                bos.write(dist, 0, len);
+            }
+            return bos.toByteArray();
+        } finally {
+            Optional.ofNullable(bos).ifPresent(stream -> {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    System.err.println("file=" + file.getPath());
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }
