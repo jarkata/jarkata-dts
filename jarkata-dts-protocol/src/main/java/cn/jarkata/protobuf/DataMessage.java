@@ -8,9 +8,9 @@ public class DataMessage implements Serializable {
     private final long size;
     private final byte[] data;
 
-    public DataMessage(String path, InputStream data) throws IOException {
+    public DataMessage(String path, byte[] data) throws IOException {
         this.path = path;
-        this.data = toByteArray(data);
+        this.data = data;
         this.size = this.data.length;
     }
 
@@ -24,18 +24,5 @@ public class DataMessage implements Serializable {
 
     public byte[] getData() {
         return data;
-    }
-
-    private byte[] toByteArray(InputStream inputStream) throws IOException {
-        try (BufferedInputStream bis = new BufferedInputStream(inputStream);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
-            byte[] dist = new byte[1024];
-
-            int len;
-            while ((len = bis.read(dist)) != -1) {
-                bos.write(dist, 0, len);
-            }
-            return bos.toByteArray();
-        }
     }
 }
