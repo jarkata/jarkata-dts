@@ -49,12 +49,20 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
             DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
             byte[] stream = dataMessage.getData();
             String filePath = buildPath("/Users/vkata/data/", dataMessage.getPath());
+            logger.info("filePath={}", filePath);
             int index = filePath.lastIndexOf("/");
             if (index > 0) {
                 String parentPath = filePath.substring(0, index);
                 File dir = new File(parentPath);
-                boolean mkdirs = dir.mkdirs();
-                logger.info("创建结果：{}", mkdirs);
+                if (!dir.exists()) {
+                    boolean mkdirs = dir.mkdirs();
+                    logger.info("创建结果：{},parentPath={}", mkdirs, parentPath);
+                } else {
+                    logger.info("创建目录parentPath={}", parentPath);
+                }
+
+            } else {
+                logger.info("filePath={}", filePath);
             }
 
             BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(stream));
@@ -75,7 +83,9 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
         if (!appendPath.startsWith("/")) {
             appendPath = "/" + appendPath;
         }
-        return root + appendPath;
+        String filePath = root + appendPath;
+        return filePath.replaceAll("//", "/")
+                .replaceAll("\\\\", "/");
     }
 
 

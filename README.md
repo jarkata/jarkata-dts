@@ -2,6 +2,12 @@
 
 ---
 
+- 历史文件对比
+- 提高文件传输速度
+- 大文件拆分传输
+
+---
+
 ### 公用资源
 
 https://issues.sonatype.org/browse/OSSRH-57902

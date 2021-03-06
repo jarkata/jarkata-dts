@@ -41,6 +41,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.14.0</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.jarkata</groupId>
+                <artifactId>jarkata-dts-protocol</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -87,6 +102,11 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler</artifactId>
                 <version>4.1.58.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.jarkata</groupId>
+                <artifactId>jarkata-commons</artifactId>
+                <version>2.0.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
