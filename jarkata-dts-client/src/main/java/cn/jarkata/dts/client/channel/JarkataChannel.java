@@ -68,7 +68,7 @@ public class JarkataChannel {
         return channel;
     }
 
-    public String writeFile(DataMessage msg) throws Exception {
+    public void writeFile(DataMessage msg) throws Exception {
         Channel channel = getOrCreate();
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(1024);
         try {
@@ -79,7 +79,6 @@ public class JarkataChannel {
             logger.error("Path=" + msg.getPath(), ex);
             throw ex;
         }
-        return null;
     }
 
 }

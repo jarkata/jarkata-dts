@@ -19,10 +19,13 @@ public class DtsClient {
 
     public static void main(String[] args) throws Exception {
 
-        String basePath = Env.getProperty("base.path");
+        String basePath = Env.getProperty("client.base.path");
         List<String> fileList = FileUtils.getFileList(basePath);
         logger.info("FileSize={}", fileList.size());
-        JarkataChannel connection = new JarkataChannel("192.168.0.103", 20880);
+        String serverHost = Env.getProperty("server.host");
+        String[] split = serverHost.split("\\:");
+        assert split.length != 2;
+        JarkataChannel connection = new JarkataChannel(split[0], Integer.parseInt(split[1]));
         for (String path : fileList) {
             String filePath = FileUtils.getRelativePath(basePath, path);
             byte[] array = IOUtils.toByteArray(new FileInputStream(path));
