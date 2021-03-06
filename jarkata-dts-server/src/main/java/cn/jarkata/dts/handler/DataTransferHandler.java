@@ -14,14 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 
 public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(DataTransferHandler.class);
-
-    private static final Random random = new Random();
 
     private final ExecutorService handlerExecutor;
 
@@ -62,7 +59,7 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
                 buf.readBytes(bytes);
                 DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
                 byte[] stream = dataMessage.getData();
-                String basePath = Env.getProperty("server.bast.path");
+                String basePath = Env.getProperty("server.base.path");
                 String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
                 logger.info("fullPath={}", fullPath);
                 FileUtils.ensureParentPath(fullPath);
