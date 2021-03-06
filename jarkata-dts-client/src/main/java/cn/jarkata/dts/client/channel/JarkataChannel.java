@@ -1,5 +1,6 @@
 package cn.jarkata.dts.client.channel;
 
+import cn.jarkata.commons.idcreator.IdFactory;
 import cn.jarkata.dts.client.handler.ClientHandlerInitializer;
 import cn.jarkata.dts.client.handler.MessageHandler;
 import cn.jarkata.protobuf.DataMessage;
@@ -65,9 +66,10 @@ public class JarkataChannel {
 
     public String writeFile(File msg) throws Exception {
         Channel channel = getOrCreate();
+        long tid = IdFactory.createId(1);
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
         byte[] byteArray = IOUtils.toByteArray(new FileInputStream(msg));
-        byte[] bytes = ProtobufUtils.toByteArray(new DataMessage(msg.getPath(), byteArray));
+        byte[] bytes = ProtobufUtils.toByteArray(new DataMessage(tid, msg.getPath(), byteArray));
         buf.writeBytes(bytes);
         channel.writeAndFlush(buf);
         return null;

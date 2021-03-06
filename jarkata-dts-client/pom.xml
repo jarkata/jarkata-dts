@@ -17,6 +17,10 @@
     <dependencies>
         <dependency>
             <groupId>cn.jarkata</groupId>
+            <artifactId>jarkata-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.jarkata</groupId>
             <artifactId>jarkata-dts-protocol</artifactId>
         </dependency>
         <dependency>
