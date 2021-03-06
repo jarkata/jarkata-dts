@@ -45,4 +45,18 @@ public class AppTest {
             return bos.toByteArray();
         }
     }
+
+
+    private byte[] toByteArray(InputStream inputStream) throws IOException {
+        try (BufferedInputStream bis = new BufferedInputStream(inputStream);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+            byte[] dist = new byte[1024];
+
+            int len;
+            while ((len = bis.read(dist)) != -1) {
+                bos.write(dist, 0, len);
+            }
+            return bos.toByteArray();
+        }
+    }
 }

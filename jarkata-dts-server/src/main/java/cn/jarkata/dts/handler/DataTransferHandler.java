@@ -48,7 +48,7 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
             buf.readBytes(bytes);
             DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
             byte[] stream = dataMessage.getData();
-            String filePath = "/Users/vkata/data" + dataMessage.getPath();
+            String filePath = buildPath("/Users/vkata/data/", dataMessage.getPath());
             int index = filePath.lastIndexOf("/");
             if (index > 0) {
                 String parentPath = filePath.substring(0, index);
@@ -69,6 +69,13 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
             ReferenceCountUtil.release(buf);
         }
 
+    }
+
+    private String buildPath(String root, String appendPath) {
+        if (!appendPath.startsWith("/")) {
+            appendPath = "/" + appendPath;
+        }
+        return root + appendPath;
     }
 
 
