@@ -1,4 +1,4 @@
-package cn.jarkata;
+package cn.jarkata.protobuf;
 
 import cn.jarkata.protobuf.DataMessage;
 import cn.jarkata.protobuf.utils.ProtobufUtils;
