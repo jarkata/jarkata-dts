@@ -1,8 +1,6 @@
 package cn.jarkata;
 
-import static org.junit.Assert.assertTrue;
-
-import io.netty.util.NetUtil;
+import cn.jarkata.dts.common.Env;
 import org.junit.Test;
 
 /**
@@ -14,8 +12,9 @@ public class DtsClientTest {
      */
     @Test
     public void shouldAnswerWithTrue() {
-        int somaxconn = NetUtil.SOMAXCONN;
-        System.out.println(somaxconn);
-        assertTrue(true);
+
+        String property = Env.getProperty("base.path", "/home");
+        System.out.println(property);
+
     }
 }

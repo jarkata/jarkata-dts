@@ -21,6 +21,5 @@
 .idea/
 */target/
 hs_err_pid*
-jarkata-dts-server/*-reduced-pom.xml
-jarkata-dts-client/*-reduced-pom.xml
+*/*-reduced-pom.xml
 ./script/

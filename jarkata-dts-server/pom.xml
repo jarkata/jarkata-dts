@@ -23,6 +23,10 @@
     <dependencies>
         <dependency>
             <groupId>cn.jarkata</groupId>
+            <artifactId>jarkata-dts-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.jarkata</groupId>
             <artifactId>jarkata-dts-protocol</artifactId>
         </dependency>
         <dependency>

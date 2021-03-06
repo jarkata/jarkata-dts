@@ -1,12 +1,15 @@
 package cn.jarkata.dts.common.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class FileUtils {
-
+    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     /**
      * 获取相对路径
@@ -17,6 +20,34 @@ public class FileUtils {
      */
     public static String getRelativePath(String basePath, String fullPath) {
         return fullPath.replaceFirst(basePath, "");
+    }
+
+    /**
+     * 获取全路径
+     *
+     * @param basePath     基础路径
+     * @param relativePath 相对路径
+     * @return 全路径
+     */
+    public static String getFullPath(String basePath, String relativePath) {
+        return trimPathSep(basePath + "/" + relativePath);
+    }
+
+    public static void ensureParentPath(String fullPath) {
+        int lastIndex = fullPath.lastIndexOf("/");
+        if (lastIndex <= 0) {
+            logger.info("路径中不存在路径分隔符");
+            return;
+        }
+        String parentPath = fullPath.substring(0, lastIndex);
+        File dir = new File(parentPath);
+        if (!dir.exists()) {
+            boolean mkdirs = dir.mkdirs();
+            logger.debug("创建结果：{},parentPath={}", mkdirs, parentPath);
+        } else {
+            logger.debug("创建目录parentPath={}", parentPath);
+        }
+
     }
 
     /**
