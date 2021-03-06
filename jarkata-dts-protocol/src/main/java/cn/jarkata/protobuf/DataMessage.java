@@ -1,6 +1,5 @@
 package cn.jarkata.protobuf;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 public class DataMessage implements Serializable {
@@ -9,7 +8,7 @@ public class DataMessage implements Serializable {
     private final long size;
     private final byte[] data;
 
-    public DataMessage(String path, byte[] data) throws IOException {
+    public DataMessage(String path, byte[] data) {
         this.path = path;
         this.data = data;
         this.size = this.data.length;
