@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_IO_THREADS;
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_IO_THREADS_DEFUALT_VAL;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_IO_THREADS;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_IO_THREADS_DEFUALT_VAL;
 
 public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
 

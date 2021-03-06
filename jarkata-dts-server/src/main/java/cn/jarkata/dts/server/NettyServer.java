@@ -23,8 +23,8 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_WORK_THREADS;
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_WORK_THREADS_DEFUALT_VAL;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_WORK_THREADS;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_WORK_THREADS_DEFUALT_VAL;
 
 public class NettyServer {
 
@@ -59,7 +59,7 @@ public class NettyServer {
         bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
         bootstrap.childOption(ChannelOption.SO_SNDBUF, 16 * 1024);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, 16 * 1024);
-        bootstrap.childOption(ChannelOption.SINGLE_EVENTEXECUTOR_PER_GROUP, false);
+//        bootstrap.childOption(ChannelOption.SINGLE_EVENTEXECUTOR_PER_GROUP, false);
         bootstrap.childHandler(new DataTransferInitializer());
         try {
             ChannelFuture future = bootstrap.bind(new InetSocketAddress(port)).sync();

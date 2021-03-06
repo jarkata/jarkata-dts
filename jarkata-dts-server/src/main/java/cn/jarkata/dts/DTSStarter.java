@@ -4,8 +4,8 @@ package cn.jarkata.dts;
 import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.server.NettyServer;
 
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_PORT;
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_PORT_DEFUALT_VAL;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_PORT;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_PORT_DEFUALT_VAL;
 
 public class DTSStarter {
 

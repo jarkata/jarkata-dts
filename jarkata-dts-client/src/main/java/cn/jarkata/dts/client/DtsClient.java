@@ -12,6 +12,9 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static cn.jarkata.dts.common.constant.JarkataConstant.CLIENT_BASE_PATH;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_HOST;
+
 /**
  * Hello world!
  */
@@ -30,10 +33,10 @@ public class DtsClient {
     }
 
     private static void transfer() throws Exception {
-        String basePath = Env.getProperty("client.base.path");
+        String basePath = Env.getProperty(CLIENT_BASE_PATH);
         List<String> fileList = FileUtils.getFileList(basePath);
         logger.info("BasePath={},FileSize={}", basePath, fileList.size());
-        String serverHost = Env.getProperty("server.host");
+        String serverHost = Env.getProperty(SERVER_HOST);
         logger.info("服务端地址:{}", serverHost);
         String[] split = serverHost.split(":");
         assert split.length != 2;

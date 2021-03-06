@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
-import static cn.jarkata.dts.constant.JarkataConstant.SERVER_BASE_PATH;
+import static cn.jarkata.dts.common.constant.JarkataConstant.SERVER_BASE_PATH;
 
 public class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
