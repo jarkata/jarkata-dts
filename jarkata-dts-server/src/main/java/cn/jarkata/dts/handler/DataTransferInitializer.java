@@ -1,6 +1,7 @@
 package cn.jarkata.dts.handler;
 
 import cn.jarkata.commons.concurrent.ThreadPoolFactory;
+import cn.jarkata.dts.common.Env;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -15,12 +16,13 @@ import java.util.concurrent.ExecutorService;
 
 public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
 
-    private Logger logger = LoggerFactory.getLogger(DataTransferInitializer.class);
+    private final Logger logger = LoggerFactory.getLogger(DataTransferInitializer.class);
 
     private final ExecutorService handlerPoolExecutor;
 
     public DataTransferInitializer() {
-        int businessThread = Integer.parseInt(System.getProperty("business.threads", "100"));
+        String ioThreads = Env.getProperty("server.io.threads", "100");
+        int businessThread = Integer.parseInt(ioThreads);
         handlerPoolExecutor = ThreadPoolFactory.newThreadPool("handler",
                 businessThread, businessThread, 10000, 60 * 1000, 60 * 1000);
     }
@@ -28,15 +30,15 @@ public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipeline = socketChannel.pipeline();
-        pipeline.addLast(new IdleStateHandler(30, 30, 30));
-//        pipeline.addLast(new DelimiterBasedFrameDecoder(1024 * 1024, Unpooled.wrappedBuffer("#####".getBytes(StandardCharsets.UTF_8))));
-        pipeline.addLast(new ProtobufVarint32FrameDecoder());
-        pipeline.addLast(new DataTransferHandler(handlerPoolExecutor));
-        pipeline.addLast(new ProtobufVarint32LengthFieldPrepender());
+        pipeline.addLast(new IdleStateHandler(30, 30, 30))
+                .addLast(new ProtobufVarint32FrameDecoder())
+                .addLast(new DataTransferHandler(handlerPoolExecutor))
+                .addLast(new ProtobufVarint32LengthFieldPrepender());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.close();
         logger.error("初始化失败：", cause);
     }
 }

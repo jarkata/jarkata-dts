@@ -30,19 +30,19 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         logger.info("Message:{}", msg);
-        ByteBuf buf = (ByteBuf) msg;
+        ByteBuf buffer = (ByteBuf) msg;
         try {
-            async(ctx, buf);
+            async(buffer);
         } finally {
-            ReferenceCountUtil.release(buf);
+            ReferenceCountUtil.release(buffer);
         }
 
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
         logger.error("异常：" + ctx, cause);
     }
@@ -50,25 +50,30 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     /**
      * 异步执行IO
      *
-     * @param ctx
      * @param buf
      */
-    private void async(ChannelHandlerContext ctx, ByteBuf buf) {
+    private void async(ByteBuf buf) {
         handlerExecutor.execute(() -> {
-            int length = buf.readableBytes();
-            logger.debug("Buf-length:{}", length);
-            byte[] bytes = new byte[length];
-            buf.readBytes(bytes);
-            DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
-            byte[] stream = dataMessage.getData();
-            String basePath = Env.getProperty("server.bast.path");
-            String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
-            logger.info("fullPath={}", fullPath);
-            FileUtils.ensureParentPath(fullPath);
-            try (FileOutputStream fos = new FileOutputStream(fullPath)) {
-                IOUtils.write(stream, fos);
-            } catch (IOException e) {
-                logger.error("fullPath=" + fullPath, e);
+            long start = System.currentTimeMillis();
+            try {
+                int length = buf.readableBytes();
+                logger.debug("Buf-length:{}", length);
+                byte[] bytes = new byte[length];
+                buf.readBytes(bytes);
+                DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
+                byte[] stream = dataMessage.getData();
+                String basePath = Env.getProperty("server.bast.path");
+                String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
+                logger.info("fullPath={}", fullPath);
+                FileUtils.ensureParentPath(fullPath);
+                try (FileOutputStream fos = new FileOutputStream(fullPath)) {
+                    IOUtils.write(stream, fos);
+                } catch (IOException e) {
+                    logger.error("fullPath=" + fullPath, e);
+                }
+            } finally {
+                long dur = System.currentTimeMillis() - start;
+                logger.info("文件传输耗时:{}ms", dur);
             }
         });
     }
