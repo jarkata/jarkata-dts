@@ -27,4 +27,4 @@ JAVA_OPS="-server
 -Dlog.sample=500
 -Dwork.threads=600"
 
-java $JAVA_OPS -jar jarkata-dts-server.jar &
+java -classpath .: $JAVA_OPS -jar jarkata-dts-server.jar &
