@@ -1,6 +1,10 @@
 #!/bin/bash
 
-DTS_HOME=/Users/vkata/code/jarkata-dts/jarkata-dts-build/target/jarkata-dts
+DTS_DIR=$(cd $(dirname $0); pwd)
+DTS_HOME=$DTS_DIR/..
+echo 'DTS_HOME='$DTS_HOME
+DTS_CLASS_PATH=$DTS_HOME/config:$DTS_HOME/lib/jarkata-dts.jar
+echo 'DTS_CLASS_PATH='$DTS_CLASS_PATH
 
 JAVA_OPS="-server
 -XX:+UseCompressedOops
@@ -18,7 +22,7 @@ JAVA_OPS="-server
 -XX:NumberOfGCLogFiles=5
 -XX:GCLogFileSize=30m
 -XX:ErrorFile=$DTS_HOME/logs/hs_err_pid%p.log
--Xloggc:$DTS_HOME/logs/gc/gc.log
+-Xloggc:$DTS_HOME/logs/gc.log
 -verbose:gc
 -XX:HeapDumpPath=$DTS_HOME/logs/dump
 -XX:+PrintGCDetails
@@ -27,5 +31,6 @@ JAVA_OPS="-server
 -XX:+DisableExplicitGC
 -DLOG_PATH=$DTS_HOME/logs
 -Dio.netty.net.somaxconn.trySysctl=true"
+echo $JAVA_OPS
 
-java $JAVA_OPS -classpath $DTS_HOME/config:$DTS_HOME/jarkata-dts.jar  cn.jarkata.dts.DTSStarter &
+java $JAVA_OPS -classpath $DTS_CLASS_PATH cn.jarkata.dts.DTSStarter >$DTS_HOME/sys.log 2>&1 &

@@ -34,15 +34,7 @@
     <files>
         <file>
             <source>target/jarkata-dts.jar</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>./lib</outputDirectory>
         </file>
     </files>
-
-<!--    <dependencySets>-->
-<!--        <dependencySet>-->
-<!--            <unpack>false</unpack>-->
-<!--            <scope>runtime</scope>-->
-<!--            <outputDirectory>lib</outputDirectory>-->
-<!--        </dependencySet>-->
-<!--    </dependencySets>-->
 </assembly>
