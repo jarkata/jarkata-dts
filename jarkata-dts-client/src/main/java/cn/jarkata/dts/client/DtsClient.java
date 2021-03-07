@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
  * Hello world!
  */
 public class DtsClient {
+
     private static final Logger logger = LoggerFactory.getLogger(DtsClient.class);
 
     public static void main(String[] args) throws Exception {
