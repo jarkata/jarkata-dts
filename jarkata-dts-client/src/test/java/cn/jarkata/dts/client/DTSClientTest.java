@@ -11,7 +11,7 @@ import static cn.jarkata.dts.common.constant.JarkataConstant.CLIENT_BASE_PATH;
 /**
  * Unit test for simple App.
  */
-public class DtsClientTest {
+public class DTSClientTest {
     /**
      * Rigorous Test :-)
      */
