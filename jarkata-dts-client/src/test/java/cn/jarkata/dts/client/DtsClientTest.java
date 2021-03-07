@@ -1,6 +1,5 @@
-package cn.jarkata;
+package cn.jarkata.dts.client;
 
-import cn.jarkata.dts.client.NettyClient;
 import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.common.utils.FileUtils;
 import org.junit.Test;
