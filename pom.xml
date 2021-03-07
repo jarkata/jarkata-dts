@@ -12,6 +12,7 @@
         <module>jarkata-dts-client</module>
         <module>jarkata-dts-protocol</module>
         <module>jarkata-dts-common</module>
+        <module>jarkata-dts-build</module>
     </modules>
 
     <name>jarkata-dts</name>

@@ -22,7 +22,6 @@ public class DtsClientTest {
         List<String> fileList = FileUtils.getFileList(basePath);
         for (String fullPath : fileList) {
             if (NettyClient.allowTransfer(basePath, fullPath)) {
-                continue;
             }
         }
     }

@@ -2,7 +2,7 @@
     <id>assembly</id>
 
     <formats>
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
 
     <includeBaseDirectory>true</includeBaseDirectory>
@@ -17,8 +17,8 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>src/main/conf</directory>
-            <outputDirectory>conf</outputDirectory>
+            <directory>src/main/config</directory>
+            <outputDirectory>config</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>target/classes/</directory>
@@ -27,22 +27,15 @@
                 <include>*.xml</include>
                 <include>*.txt</include>
             </includes>
-            <outputDirectory>conf</outputDirectory>
+            <outputDirectory>config</outputDirectory>
         </fileSet>
     </fileSets>
 
     <files>
         <file>
-            <source>target/${project.artifactId}-${project.version}.jar</source>
+            <source>target/jarkata-dts.jar</source>
             <outputDirectory>.</outputDirectory>
         </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <unpack>false</unpack>
-            <scope>runtime</scope>
-            <outputDirectory>lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
 </assembly>
