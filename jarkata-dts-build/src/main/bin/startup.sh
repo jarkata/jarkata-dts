@@ -1,10 +1,13 @@
+#!/bin/bash
+
+DTS_HOME=/Users/vkata/code/jarkata-dts/jarkata-dts-build/target/jarkata-dts
 
 JAVA_OPS="-server
 -XX:+UseCompressedOops
 -XX:-UseBiasedLocking
 -XX:+AlwaysPreTouch
--Xmx8g
--Xms8g
+-Xmx3g
+-Xms3g
 -XX:MetaspaceSize=256M
 -XX:+UseG1GC
 -XX:G1HeapRegionSize=16m
@@ -14,17 +17,15 @@ JAVA_OPS="-server
 -XX:+UseGCLogFileRotation
 -XX:NumberOfGCLogFiles=5
 -XX:GCLogFileSize=30m
--XX:ErrorFile=./logs/hs_err_pid%p.log
--Xloggc:./logs/gc/gc.log
+-XX:ErrorFile=$DTS_HOME/logs/hs_err_pid%p.log
+-Xloggc:$DTS_HOME/logs/gc/gc.log
 -verbose:gc
--XX:HeapDumpPath=./logs/dump
+-XX:HeapDumpPath=$DTS_HOME/logs/dump
 -XX:+PrintGCDetails
 -XX:+PrintGCDateStamps
 -XX:+HeapDumpOnOutOfMemoryError
 -XX:+DisableExplicitGC
--Dio.netty.net.somaxconn.trySysctl=true
--Dserver.port=8089
--Dlog.sample=500
--Dwork.threads=600"
+-DLOG_PATH=$DTS_HOME/logs
+-Dio.netty.net.somaxconn.trySysctl=true"
 
-java -classpath .: $JAVA_OPS -jar jarkata-dts-server.jar &
+java $JAVA_OPS -classpath $DTS_HOME/config:$DTS_HOME/jarkata-dts.jar  cn.jarkata.dts.DTSStarter &

@@ -1,7 +1,7 @@
 <configuration scan="true" debug="false">
 
     <property name="APP_NAME" value="jarkata-dts"/>
-    <property name="LOG_HOME" value="./logs"/>
+    <property name="LOG_HOME" value="${LOG_PATH:-./logs}"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
