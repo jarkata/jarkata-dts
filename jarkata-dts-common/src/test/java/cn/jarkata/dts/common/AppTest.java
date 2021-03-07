@@ -1,4 +1,4 @@
-package cn.jarkata;
+package cn.jarkata.dts.common;
 
 import static org.junit.Assert.assertTrue;
 

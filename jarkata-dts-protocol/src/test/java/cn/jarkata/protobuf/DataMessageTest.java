@@ -10,7 +10,7 @@ import java.io.*;
 /**
  * Unit test for simple App.
  */
-public class AppTest {
+public class DataMessageTest {
 
     @Test
     public void testProtoBuf() throws Exception {
