@@ -10,6 +10,7 @@ import java.util.Objects;
 
 public class FileUtils {
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+    private static final String FILE_SEP = "/";
 
     /**
      * 获取相对路径
@@ -30,11 +31,16 @@ public class FileUtils {
      * @return 全路径
      */
     public static String getFullPath(String basePath, String relativePath) {
-        return trimPathSep(basePath + "/" + relativePath);
+        return trimPathSep(basePath + FILE_SEP + relativePath);
     }
 
+    /**
+     * 确保文件的上级目录存在
+     *
+     * @param fullPath 文件全路径
+     */
     public static void ensureParentPath(String fullPath) {
-        int lastIndex = fullPath.lastIndexOf("/");
+        int lastIndex = fullPath.lastIndexOf(FILE_SEP);
         if (lastIndex <= 0) {
             logger.info("路径中不存在路径分隔符");
             return;
@@ -93,7 +99,7 @@ public class FileUtils {
      * @return 文件路径
      */
     public static String trimPathSep(String path) {
-        return path.replaceAll("\\\\", "/")
-                .replaceAll("//", "/");
+        return path.replaceAll("\\\\", FILE_SEP)
+                .replaceAll("//", FILE_SEP);
     }
 }
