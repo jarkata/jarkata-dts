@@ -2,6 +2,7 @@ package cn.jarkata.dts.client.channel;
 
 import cn.jarkata.dts.client.handler.ClientHandlerInitializer;
 import cn.jarkata.dts.client.handler.MessageHandler;
+import cn.jarkata.dts.common.utils.TransportUtils;
 import cn.jarkata.protobuf.DataMessage;
 import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.bootstrap.Bootstrap;
@@ -11,8 +12,10 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +56,11 @@ public class JarkataChannel {
      * @throws Exception 获取连接时发生的异常
      */
     private Channel getChannel() throws Exception {
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        EventLoopGroup clientEventLoopGroup = TransportUtils.getEventGroup(1, "client-group");
         MessageHandler handler = new MessageHandler();
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(eventLoopGroup);
-        bootstrap.channel(NioSocketChannel.class);
+        bootstrap.group(clientEventLoopGroup);
+        bootstrap.channel(TransportUtils.getClientChannel());
         bootstrap.option(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
@@ -65,14 +68,25 @@ public class JarkataChannel {
                 .option(ChannelOption.SO_RCVBUF, 8 * 1024)
                 .option(ChannelOption.SO_SNDBUF, 8 * 1024);
         bootstrap.handler(new ClientHandlerInitializer(handler));
-        ChannelFuture channelFuture = bootstrap.connect(host, port);
-        ChannelFuture future = channelFuture.sync();
-        future.addListener((listener) -> logger.info("初始化连接"));
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            eventLoopGroup.shutdownGracefully();
-            logger.info("客户端关闭成功");
-        }));
+        try {
+            ChannelFuture channelFuture = bootstrap.connect(host, port);
+            ChannelFuture future = channelFuture.sync();
+            future.addListener((listener) -> logger.info("初始化连接"));
+
+        } catch (Exception ex) {
+            logger.error("连接服务端失败", ex);
+            return null;
+        } finally {
+            TransportUtils.closeEventLoopGroup(clientEventLoopGroup);
+        }
         return handler.getChannel();
+    }
+
+    private EventLoopGroup getEventGroup() {
+        if (Epoll.isAvailable()) {
+            return new EpollEventLoopGroup();
+        }
+        return new NioEventLoopGroup();
     }
 
     /**
