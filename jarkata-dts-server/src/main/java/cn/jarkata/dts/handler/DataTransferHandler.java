@@ -7,6 +7,7 @@ import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
             } finally {
                 long dur = System.currentTimeMillis() - start;
                 logger.info("文件传输耗时:{}ms", dur);
+                ReferenceCountUtil.release(buffer);
             }
         });
     }

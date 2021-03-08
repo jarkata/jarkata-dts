@@ -37,4 +37,8 @@ public class Env {
         String value = System.getProperty(key);
         return Optional.ofNullable(value).orElse(prop.getProperty(key));
     }
+
+    public static int getIntProperty(String key, int defaultVal) {
+        return Integer.parseInt(getProperty(key, String.valueOf(defaultVal)));
+    }
 }
