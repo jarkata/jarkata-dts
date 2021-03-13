@@ -27,11 +27,14 @@ public class FileDataTransferHandler extends ChannelInboundHandlerAdapter {
             logger.error("Not Support Msg:{}", msg);
             return;
         }
+        MessageEncode messageEncode = new MessageEncode();
         ByteBuf buf = (ByteBuf) msg;
         try {
+            logger.info("Msg={}", msg);
             ChuckDataMessage message = ChuckDataMessage.decode(buf);
+            logger.info("ChuckMessage={}", message);
             String basePath = Env.getProperty(SERVER_BASE_PATH);
-            MessageEncode.decode(basePath, message);
+            messageEncode.decode(basePath, message);
         } finally {
             ReferenceCountUtil.release(buf);
         }

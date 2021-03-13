@@ -5,13 +5,9 @@ import cn.jarkata.dts.client.handler.MessageHandler;
 import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.common.MessageEncode;
 import cn.jarkata.dts.common.utils.TransportUtils;
-import cn.jarkata.protobuf.ChuckDataMessage;
-import cn.jarkata.protobuf.DataMessage;
-import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -20,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -113,86 +107,16 @@ public class JarkataChannel {
         return channel;
     }
 
-    /**
-     * 写文件
-     *
-     * @param msg 文件消息
-     * @throws Exception 写文件异常
-     */
-    public void writeFile(DataMessage msg) throws Exception {
-        Channel channel = getOrCreate();
-        sendFileCount.incrementAndGet();
-        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(1024);
-        try {
-            byte[] bytes = ProtobufUtils.toByteArray(msg);
-            int len = bytes.length;
-            int maxFrame = 1024 * 512;
-            if (bytes.length >= maxFrame) {
-                logger.info("Len={}", len);
-                int count = len / (maxFrame) + 1;
-                logger.info("count={}", count);
-                for (int index = 0; index < count; index++) {
-                    int curFrame = maxFrame;
-                    if ((index + 1) * maxFrame > len) {
-                        curFrame = len - index * maxFrame;
-                    }
-                    int nextPos = index * maxFrame;
-                    logger.info("cur={}", curFrame);
-                    byte[] dist = new byte[curFrame];
-                    System.arraycopy(bytes, nextPos, dist, 0, curFrame);
-                    buffer.writeBytes(dist);
-                    channel.writeAndFlush(buffer).addListener((listener) -> {
-                        sendFileCount.decrementAndGet();
-                    });
-                }
-            } else {
-                buffer.writeBytes(bytes);
-            }
-            buffer.writeBytes("#||#".getBytes(StandardCharsets.UTF_8));
-            channel.writeAndFlush(buffer).addListener((listener) -> {
-                sendFileCount.decrementAndGet();
-            });
-        } catch (Exception ex) {
-            logger.error("Path=" + msg.getPath(), ex);
-            throw ex;
-        } finally {
-//            ReferenceCountUtil.release(buffer);
-        }
-    }
-
-
-    public void writeFileStream(DataMessage msg) throws Exception {
-        Channel channel = getOrCreate();
-        sendFileCount.incrementAndGet();
-        ByteBuf buffer = msg.encode();
-        logger.info("{}", buffer);
-        channel.writeAndFlush(buffer).addListener((listener) -> {
-            sendFileCount.decrementAndGet();
-            logger.info("Result={}", listener.isSuccess());
-        });
-    }
-
     public void sendFile(String fullPath) throws Exception {
         String basePath = Env.getProperty(CLIENT_BASE_PATH);
-        LinkedList<ChuckDataMessage> encode = MessageEncode.encode(basePath, new File(fullPath));
         Channel channel = getOrCreate();
         sendFileCount.incrementAndGet();
-        for (ChuckDataMessage chuckDataMessage : encode) {
-            ByteBuf buffer = chuckDataMessage.encode();
+        MessageEncode messageEncode = new MessageEncode();
+        messageEncode.encodeChuckStream(basePath, new File(fullPath), message -> {
+            ByteBuf buffer = message.encode();
             channel.writeAndFlush(buffer).addListener((listener) -> {
                 sendFileCount.decrementAndGet();
-                logger.info("Result={}", listener.isSuccess());
             });
-        }
-    }
-
-    public void writeBuffer(ByteBuf buffer) throws Exception {
-        Channel channel = getOrCreate();
-        sendFileCount.incrementAndGet();
-        logger.info("{}", buffer);
-        channel.writeAndFlush(buffer).addListener((listener) -> {
-            sendFileCount.decrementAndGet();
-            logger.info("Result={}", listener.isSuccess());
         });
     }
 

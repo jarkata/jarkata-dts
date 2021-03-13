@@ -43,14 +43,13 @@ public class TransferFileServer extends AbstractServer {
     EventLoopGroup getWorkEventGroup() {
         int workThreadCount = serverConfig.getWorkThreadCount();
         logger.info("workThreadCount={}", workThreadCount);
-//        return TransportUtils.getEventGroup(serverConfig.getWorkThreadCount(), "work-group");
-        return new NioEventLoopGroup(100, new NamedThreadFactory("work"));
+        return new NioEventLoopGroup(workThreadCount, new NamedThreadFactory("work"));
     }
 
     @Override
     Function<ChannelPipeline, Void> getChannelFunction() {
         return pipeline -> {
-            pipeline.addLast(new LengthFieldBasedFrameDecoder(1024 * 16, 20, 4));
+            pipeline.addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 2, 28, 4));
             pipeline.addLast(new FileDataTransferHandler());
             return null;
         };

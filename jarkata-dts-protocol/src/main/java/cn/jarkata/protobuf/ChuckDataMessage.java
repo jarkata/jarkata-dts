@@ -2,19 +2,22 @@ package cn.jarkata.protobuf;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.PooledByteBufAllocator;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-public class ChuckDataMessage implements Serializable {
-    public static final int CHUCK_SIZE = 2 * 1024;
+public class ChuckDataMessage implements Serializable, Closeable {
+    public static final int CHUCK_SIZE = 1024 * 1024;
     private String mac;
     private long tid;
     private String path;
     private byte[] data;
-    private int startPostion;
-    private int totalSize;
+    private long startPostion;
+    private long totalSize;
+    private static final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(CHUCK_SIZE, 1024 * 1024 * 10);
 
     public ChuckDataMessage(long tid, String path) {
         this.tid = tid;
@@ -24,20 +27,20 @@ public class ChuckDataMessage implements Serializable {
     public ChuckDataMessage() {
     }
 
-    public int getStartPostion() {
+    public long getStartPostion() {
         return startPostion;
     }
 
-    public ChuckDataMessage setStartPostion(int startPostion) {
+    public ChuckDataMessage setStartPostion(long startPostion) {
         this.startPostion = startPostion;
         return this;
     }
 
-    public int getTotalSize() {
+    public long getTotalSize() {
         return totalSize;
     }
 
-    public ChuckDataMessage setTotalSize(int totalSize) {
+    public ChuckDataMessage setTotalSize(long totalSize) {
         this.totalSize = totalSize;
         return this;
     }
@@ -79,11 +82,13 @@ public class ChuckDataMessage implements Serializable {
     }
 
     public ByteBuf encode() {
-        ByteBuf buffer = Unpooled.buffer(CHUCK_SIZE);
+        if (totalSize <= 0) {
+            throw new IllegalArgumentException("invalid totalSize=" + totalSize);
+        }
         buffer.writeInt('J');
         buffer.writeLong(tid);
-        buffer.writeInt(startPostion);
-        buffer.writeInt(totalSize);
+        buffer.writeLong(startPostion);
+        buffer.writeLong(totalSize);
         InnerMessage message = new InnerMessage();
         message.setPath(this.getPath());
         message.setData(this.getData());
@@ -110,14 +115,20 @@ public class ChuckDataMessage implements Serializable {
         long tid = buf.getLong(tidIndex);
         chuckDataMessage.setTid(tid);
         int batchIndex = tidIndex + 8;
-        int startPostion = buf.getInt(batchIndex);
+        long startPostion = buf.getLong(batchIndex);
+        if (startPostion < 0) {
+            throw new IllegalArgumentException("pos=" + startPostion + ",posIndex=" + batchIndex);
+        }
         chuckDataMessage.setStartPostion(startPostion);
-        int totalIndex = batchIndex + 4;
-        int totalSize = buf.getInt(totalIndex);
+        int totalIndex = batchIndex + 8;
+        long totalSize = buf.getLong(totalIndex);
         chuckDataMessage.setTotalSize(totalSize);
-        int dataLenIndex = totalIndex + 4;
+        if (totalSize <= 0) {
+            throw new IllegalArgumentException("pos=" + totalSize + ",totalIndex=" + totalIndex);
+        }
+        int dataLenIndex = totalIndex + 8;
         int dataLen = buf.getInt(dataLenIndex);
-        buf.skipBytes(4 + 8 + 4 + 4 + 4);
+        buf.skipBytes(4 + 8 + 8 + 8 + 4);
         byte[] bodyData = new byte[dataLen];
         buf.readBytes(bodyData);
         String messageJson = new String(bodyData, StandardCharsets.UTF_8);
@@ -136,8 +147,12 @@ public class ChuckDataMessage implements Serializable {
         sb.append(", path='").append(path).append('\'');
         sb.append(", startPostion=").append(startPostion);
         sb.append(", totalSize=").append(totalSize);
-        sb.append(", data=").append(data);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public void close() throws IOException {
+        buffer.clear();
     }
 }
