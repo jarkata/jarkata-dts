@@ -23,23 +23,23 @@ public class DTSClient {
         try {
             File file = new File("/Users/vkata/data1/0001.mov");
             System.out.println(file.length());
-            AtomicInteger count = new AtomicInteger();
-            MessageEncode messageEncode = new MessageEncode();
-            messageEncode.encodeChuckStream("/Users/vkata/data1", file, (message) -> {
-                ByteBuf buffer = null;
-                try {
-                    buffer = message.encode();
-                    count.getAndIncrement();
-                    ChuckDataMessage messageData = ChuckDataMessage.decode(buffer);
-                    System.out.println(count.get() + "," + messageData);
-                    messageEncode.decode("/Users/vkata/data4", messageData);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    Optional.ofNullable(buffer).ifPresent(ByteBuf::clear);
-                }
-            });
-//            NettyClient.transfer(args);
+//            AtomicInteger count = new AtomicInteger();
+//            MessageEncode messageEncode = new MessageEncode();
+//            messageEncode.encodeChuckStream("/Users/vkata/data1", file, (message) -> {
+//                ByteBuf buffer = null;
+//                try {
+//                    buffer = message.encode();
+//                    count.getAndIncrement();
+//                    ChuckDataMessage messageData = ChuckDataMessage.decode(buffer);
+//                    System.out.println(count.get() + "," + messageData);
+//                    messageEncode.decode("/Users/vkata/data4", messageData);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    Optional.ofNullable(buffer).ifPresent(ByteBuf::clear);
+//                }
+//            });
+            NettyClient.transfer(args);
         } finally {
             long dur = System.currentTimeMillis() - start;
             logger.info("耗时:{}ms", dur);

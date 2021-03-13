@@ -24,6 +24,9 @@ public class MessageEncode {
      * @throws IOException
      */
     public void encodeChuckStream(String basePath, File file, PreFunction<ChuckDataMessage> function) throws IOException {
+        if (file.isHidden()) {
+            return;
+        }
         String relativePath = FileUtils.getRelativePath(basePath, file.getPath());
         try (FileChuckStream stream = new FileChuckStream(file, CHUCK_SIZE)) {
             process(relativePath, stream, function);
@@ -62,6 +65,7 @@ public class MessageEncode {
      */
     private void makeMessage(long tid, String relativePath, long preLen, long length,
                              byte[] data, PreFunction<ChuckDataMessage> function) throws IOException {
+
         try (ChuckDataMessage dataMessage = new ChuckDataMessage(tid, relativePath)) {
             dataMessage.setStartPostion(preLen)
                     .setTotalSize(length)
@@ -90,6 +94,7 @@ public class MessageEncode {
         return dataMessageList;
     }
 
+    //TODO 转移的文件无法打开，尤其视频文件
     public void decode(String basePath, ChuckDataMessage dataMessage) throws IOException {
         String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
         FileUtils.ensureParentPath(fullPath);

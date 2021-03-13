@@ -3,9 +3,9 @@ package cn.jarkata.protobuf;
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
@@ -17,7 +17,8 @@ public class ChuckDataMessage implements Serializable, Closeable {
     private byte[] data;
     private long startPostion;
     private long totalSize;
-    private static final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(CHUCK_SIZE, 1024 * 1024 * 10);
+
+    private static final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(CHUCK_SIZE * 2);
 
     public ChuckDataMessage(long tid, String path) {
         this.tid = tid;
@@ -81,27 +82,33 @@ public class ChuckDataMessage implements Serializable, Closeable {
         return this;
     }
 
+    /**
+     * 4+8+8+8+4+messageLen
+     *
+     * @return
+     */
     public ByteBuf encode() {
         if (totalSize <= 0) {
             throw new IllegalArgumentException("invalid totalSize=" + totalSize);
         }
-        buffer.writeInt('J');
-        buffer.writeLong(tid);
-        buffer.writeLong(startPostion);
-        buffer.writeLong(totalSize);
+        ByteBuf byteBuf = Unpooled.buffer(CHUCK_SIZE * 2);
+        byteBuf.writeInt('J');
+        byteBuf.writeLong(tid);
+        byteBuf.writeLong(startPostion);
+        byteBuf.writeLong(totalSize);
         InnerMessage message = new InnerMessage();
         message.setPath(this.getPath());
         message.setData(this.getData());
         String data = JSON.toJSONString(message);
         byte[] messageBytes = data.getBytes(StandardCharsets.UTF_8);
         int dataLen = messageBytes.length;
-        buffer.writeInt(dataLen);
-        buffer.writeBytes(messageBytes);
-        return buffer;
+        byteBuf.writeInt(dataLen);
+        byteBuf.writeBytes(messageBytes);
+        return byteBuf;
     }
 
     /**
-     * 4+8+4+4+dataLen+data
+     * 4+8+8+8+4+data
      *
      * @param buf
      * @return
@@ -152,7 +159,7 @@ public class ChuckDataMessage implements Serializable, Closeable {
     }
 
     @Override
-    public void close() throws IOException {
-        buffer.clear();
+    public void close() {
+//        buffer.clear();
     }
 }

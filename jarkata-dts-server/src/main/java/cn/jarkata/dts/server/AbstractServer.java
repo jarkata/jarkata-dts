@@ -38,8 +38,8 @@ public abstract class AbstractServer {
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_RCVBUF, 1024 * 1024)
-                .childOption(ChannelOption.SO_SNDBUF, 1024 * 1024)
+                .childOption(ChannelOption.SO_RCVBUF, 16 * 1024)
+                .childOption(ChannelOption.SO_SNDBUF, 16 * 1024)
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new DataTransferInitializer(getChannelFunction()));
         try {
