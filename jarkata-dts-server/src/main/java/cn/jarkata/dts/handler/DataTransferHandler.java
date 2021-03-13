@@ -32,7 +32,7 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         logger.debug("Message:{}", msg);
         ByteBuf buffer = (ByteBuf) msg;
-        async(buffer);
+        async(ctx, buffer);
     }
 
     @Override
@@ -46,30 +46,35 @@ public class DataTransferHandler extends ChannelInboundHandlerAdapter {
      *
      * @param buffer
      */
-    private void async(ByteBuf buffer) {
-        handlerExecutor.execute(() -> {
-            long start = System.currentTimeMillis();
-            try {
-                int length = buffer.readableBytes();
-                logger.debug("Buf-length:{}", length);
-                byte[] bytes = new byte[length];
-                buffer.readBytes(bytes);
-                DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
-                byte[] stream = dataMessage.getData();
-                String basePath = Env.getProperty(SERVER_BASE_PATH);
-                String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
-                logger.info("fullPath={}", fullPath);
-                FileUtils.ensureParentPath(fullPath);
-                try (FileOutputStream fos = new FileOutputStream(fullPath)) {
-                    IOUtils.write(stream, fos);
-                } catch (IOException e) {
-                    logger.error("fullPath=" + fullPath, e);
-                }
-            } finally {
-                long dur = System.currentTimeMillis() - start;
-                logger.info("文件传输耗时:{}ms", dur);
-                ReferenceCountUtil.release(buffer);
+    private void async(ChannelHandlerContext ctx, ByteBuf buffer) {
+//        handlerExecutor.execute(() -> {
+        long start = System.currentTimeMillis();
+        try {
+            int length = buffer.readableBytes();
+            logger.debug("Buf-length:{}", length);
+            byte[] bytes = new byte[length];
+            buffer.readBytes(bytes);
+            DataMessage dataMessage = (DataMessage) ProtobufUtils.readObject(bytes);
+            byte[] stream = dataMessage.getData();
+            String basePath = Env.getProperty(SERVER_BASE_PATH);
+            String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
+            logger.info("fullPath={}", fullPath);
+            FileUtils.ensureParentPath(fullPath);
+            try (FileOutputStream fos = new FileOutputStream(fullPath)) {
+                IOUtils.write(stream, fos);
+            } catch (IOException e) {
+                logger.error("fullPath=" + fullPath, e);
             }
-        });
+//            ByteBuf responseBuf = PooledByteBufAllocator.DEFAULT.buffer();
+//            responseBuf.writeBytes("success".getBytes(StandardCharsets.UTF_8));
+//            ctx.writeAndFlush(responseBuf).addListener((listener) -> {
+//                logger.info("SendResult={}", listener.isSuccess());
+//            });
+        } finally {
+            long dur = System.currentTimeMillis() - start;
+            logger.info("文件传输耗时:{}ms", dur);
+            ReferenceCountUtil.release(buffer);
+        }
+//        });
     }
 }

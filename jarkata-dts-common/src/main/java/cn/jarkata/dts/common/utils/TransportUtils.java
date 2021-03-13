@@ -42,5 +42,4 @@ public class TransportUtils {
         return Epoll.isAvailable() ? EpollSocketChannel.class : NioSocketChannel.class;
     }
 
-
 }

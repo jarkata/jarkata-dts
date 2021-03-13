@@ -3,12 +3,9 @@ package cn.jarkata.dts.client;
 import cn.jarkata.dts.client.channel.JarkataChannel;
 import cn.jarkata.dts.common.Env;
 import cn.jarkata.dts.common.utils.FileUtils;
-import cn.jarkata.protobuf.DataMessage;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -31,14 +28,10 @@ public class NettyClient {
         logger.info("服务端地址:{},BasePath={},FileSize={}", serverHost, basePath, fileList.size());
         JarkataChannel jarkataChannel = new JarkataChannel(serverHost);
         for (String fullPath : fileList) {
-            if (allowTransfer(basePath, fullPath)) {
+            if (!allowTransfer(basePath, fullPath)) {
                 continue;
             }
-            String filePath = FileUtils.getRelativePath(basePath, fullPath);
-            logger.info("FilePath={}", filePath);
-            byte[] array = IOUtils.toByteArray(new FileInputStream(fullPath));
-            DataMessage dataMessage = new DataMessage(filePath, array);
-            jarkataChannel.writeFile(dataMessage);
+            jarkataChannel.sendFile(fullPath);
         }
         jarkataChannel.waitForFinish(TimeUnit.MINUTES.toMillis(30));
     }
@@ -52,14 +45,17 @@ public class NettyClient {
      */
     public static boolean allowTransfer(String basePath, String fullPath) {
         String clientSubPath = Env.getProperty(CLIENT_SUB_PATH);
+        if ("*".equalsIgnoreCase(clientSubPath)) {
+            return true;
+        }
         String[] split = clientSubPath.split(SUB_DIR_SEP_REGEX);
         for (String subPath : split) {
             String basePathBuilder = basePath + "/" + subPath;
             String prefixBasePath = FileUtils.trimPathSep(basePathBuilder);
             if (fullPath.startsWith(prefixBasePath)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }

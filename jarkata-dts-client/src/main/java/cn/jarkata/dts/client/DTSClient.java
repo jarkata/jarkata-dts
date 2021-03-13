@@ -18,6 +18,5 @@ public class DTSClient {
             long dur = System.currentTimeMillis() - start;
             logger.info("耗时:{}ms", dur);
         }
-        System.exit(-1);
     }
 }

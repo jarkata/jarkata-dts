@@ -2,7 +2,10 @@ package cn.jarkata.dts.client.channel;
 
 import cn.jarkata.dts.client.handler.ClientHandlerInitializer;
 import cn.jarkata.dts.client.handler.MessageHandler;
+import cn.jarkata.dts.common.Env;
+import cn.jarkata.dts.common.MessageEncode;
 import cn.jarkata.dts.common.utils.TransportUtils;
+import cn.jarkata.protobuf.ChuckDataMessage;
 import cn.jarkata.protobuf.DataMessage;
 import cn.jarkata.protobuf.utils.ProtobufUtils;
 import io.netty.bootstrap.Bootstrap;
@@ -13,16 +16,17 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static cn.jarkata.dts.common.constant.JarkataConstant.CLIENT_BASE_PATH;
 import static cn.jarkata.dts.common.constant.JarkataConstant.HOST_SEPARATOR;
 
 public class JarkataChannel {
@@ -36,6 +40,8 @@ public class JarkataChannel {
 
     private static final AtomicLong sendFileCount = new AtomicLong(0);
 
+    private final Object lock = new Object();
+
     private Channel channel;
     private final String cacheKey;
 
@@ -45,6 +51,7 @@ public class JarkataChannel {
         this.host = split[0];
         this.port = Integer.parseInt(split[1]);
         this.channel = getChannel();
+        Objects.requireNonNull(channel, "channel is null");
         this.cacheKey = host + "::" + port;
         cache.put(cacheKey, channel);
     }
@@ -53,9 +60,8 @@ public class JarkataChannel {
      * 创建连接
      *
      * @return 连接信息
-     * @throws Exception 获取连接时发生的异常
      */
-    private Channel getChannel() throws Exception {
+    private Channel getChannel() {
         EventLoopGroup clientEventLoopGroup = TransportUtils.getEventGroup(1, "client-group");
         MessageHandler handler = new MessageHandler();
         Bootstrap bootstrap = new Bootstrap();
@@ -72,21 +78,13 @@ public class JarkataChannel {
             ChannelFuture channelFuture = bootstrap.connect(host, port);
             ChannelFuture future = channelFuture.sync();
             future.addListener((listener) -> logger.info("初始化连接"));
-
+            return future.channel();
         } catch (Exception ex) {
             logger.error("连接服务端失败", ex);
-            return null;
+            throw new RuntimeException(ex);
         } finally {
             TransportUtils.closeEventLoopGroup(clientEventLoopGroup);
         }
-        return handler.getChannel();
-    }
-
-    private EventLoopGroup getEventGroup() {
-        if (Epoll.isAvailable()) {
-            return new EpollEventLoopGroup();
-        }
-        return new NioEventLoopGroup();
     }
 
     /**
@@ -98,15 +96,19 @@ public class JarkataChannel {
     private Channel getOrCreate() throws Exception {
         Channel channel = cache.get(cacheKey);
         if (Objects.isNull(channel)) {
-            this.channel = getChannel();
-            cache.put(cacheKey, this.channel);
-            return this.channel;
+            synchronized (lock) {
+                this.channel = getChannel();
+                cache.put(cacheKey, this.channel);
+                return this.channel;
+            }
         }
         if (!channel.isOpen()) {
             channel.close();
-            this.channel = getChannel();
-            cache.put(cacheKey, this.channel);
-            return this.channel;
+            synchronized (lock) {
+                this.channel = getChannel();
+                cache.put(cacheKey, this.channel);
+                return this.channel;
+            }
         }
         return channel;
     }
@@ -123,14 +125,75 @@ public class JarkataChannel {
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(1024);
         try {
             byte[] bytes = ProtobufUtils.toByteArray(msg);
-            buffer.writeBytes(bytes);
+            int len = bytes.length;
+            int maxFrame = 1024 * 512;
+            if (bytes.length >= maxFrame) {
+                logger.info("Len={}", len);
+                int count = len / (maxFrame) + 1;
+                logger.info("count={}", count);
+                for (int index = 0; index < count; index++) {
+                    int curFrame = maxFrame;
+                    if ((index + 1) * maxFrame > len) {
+                        curFrame = len - index * maxFrame;
+                    }
+                    int nextPos = index * maxFrame;
+                    logger.info("cur={}", curFrame);
+                    byte[] dist = new byte[curFrame];
+                    System.arraycopy(bytes, nextPos, dist, 0, curFrame);
+                    buffer.writeBytes(dist);
+                    channel.writeAndFlush(buffer).addListener((listener) -> {
+                        sendFileCount.decrementAndGet();
+                    });
+                }
+            } else {
+                buffer.writeBytes(bytes);
+            }
+            buffer.writeBytes("#||#".getBytes(StandardCharsets.UTF_8));
             channel.writeAndFlush(buffer).addListener((listener) -> {
                 sendFileCount.decrementAndGet();
             });
         } catch (Exception ex) {
             logger.error("Path=" + msg.getPath(), ex);
             throw ex;
+        } finally {
+//            ReferenceCountUtil.release(buffer);
         }
+    }
+
+
+    public void writeFileStream(DataMessage msg) throws Exception {
+        Channel channel = getOrCreate();
+        sendFileCount.incrementAndGet();
+        ByteBuf buffer = msg.encode();
+        logger.info("{}", buffer);
+        channel.writeAndFlush(buffer).addListener((listener) -> {
+            sendFileCount.decrementAndGet();
+            logger.info("Result={}", listener.isSuccess());
+        });
+    }
+
+    public void sendFile(String fullPath) throws Exception {
+        String basePath = Env.getProperty(CLIENT_BASE_PATH);
+        LinkedList<ChuckDataMessage> encode = MessageEncode.encode(basePath, new File(fullPath));
+        Channel channel = getOrCreate();
+        sendFileCount.incrementAndGet();
+        for (ChuckDataMessage chuckDataMessage : encode) {
+            ByteBuf buffer = chuckDataMessage.encode();
+            channel.writeAndFlush(buffer).addListener((listener) -> {
+                sendFileCount.decrementAndGet();
+                logger.info("Result={}", listener.isSuccess());
+            });
+        }
+    }
+
+    public void writeBuffer(ByteBuf buffer) throws Exception {
+        Channel channel = getOrCreate();
+        sendFileCount.incrementAndGet();
+        logger.info("{}", buffer);
+        channel.writeAndFlush(buffer).addListener((listener) -> {
+            sendFileCount.decrementAndGet();
+            logger.info("Result={}", listener.isSuccess());
+        });
     }
 
     /**

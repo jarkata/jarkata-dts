@@ -1,12 +1,22 @@
 package cn.jarkata.protobuf;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 public class DataMessage implements Serializable {
     private final long tid;
     private final String path;
-    private final long size;
-    private final byte[] data;
+    private final int size;
+    private byte[] data;
+
+    public DataMessage(long tid, String path, int size) {
+        this.tid = tid;
+        this.path = path;
+        this.size = size;
+    }
 
     public DataMessage(String path, byte[] data) {
         this(0, path, data);
@@ -23,7 +33,7 @@ public class DataMessage implements Serializable {
         return path;
     }
 
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 
@@ -31,7 +41,27 @@ public class DataMessage implements Serializable {
         return data;
     }
 
+    public int getPathLen() {
+        return path.getBytes(StandardCharsets.UTF_8).length;
+    }
+
     public long getTid() {
         return tid;
     }
+
+
+    public ByteBuf encode() {
+        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(8 * 1024);
+        byte[] macBytes = "JF".getBytes(StandardCharsets.UTF_8);
+        buffer.writeInt(macBytes.length);
+        buffer.writeBytes(macBytes);
+        buffer.writeLong(tid);
+        byte[] pathBytes = path.getBytes(StandardCharsets.UTF_8);
+        buffer.writeInt(pathBytes.length);
+        buffer.writeBytes(pathBytes);
+        buffer.writeInt(data.length);
+        buffer.writeBytes(data);
+        return buffer;
+    }
+
 }

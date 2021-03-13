@@ -10,9 +10,11 @@ public class DTSStarter {
 
     private static final Logger logger = LoggerFactory.getLogger(DTSStarter.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         new TransferFileServer().start();
         new ShutdownServer().start();
-        logger.info("server start success");
+//        MonitorService monitorService = new MonitorService();
+//        monitorService.report();
+        logger.info("server start success ");
     }
 }

@@ -45,6 +45,22 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-epoll</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.75</version>
+        </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>io.netty</groupId>-->
+        <!--            <artifactId>netty-all</artifactId>-->
+        <!--            <version>4.1.58.Final</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>

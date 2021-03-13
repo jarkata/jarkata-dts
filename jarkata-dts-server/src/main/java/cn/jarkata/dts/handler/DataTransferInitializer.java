@@ -24,7 +24,7 @@ public class DataTransferInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipeline = socketChannel.pipeline();
         this.function.apply(pipeline);
-        pipeline.addLast(new IdleStateHandler(30, 30, 30));
+        pipeline.addLast(new IdleStateHandler(0, 0, 30));
     }
 
     @Override
