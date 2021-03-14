@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.LinkedList;
 
 public class MessageEncode {
 
@@ -71,32 +70,12 @@ public class MessageEncode {
     private void makeMessage(long tid, String relativePath, long preLen, long length,
                              byte[] data, PreFunction<ChuckDataMessage> function) throws IOException {
 
-        try (ChuckDataMessage dataMessage = new ChuckDataMessage(tid, relativePath)) {
-            dataMessage.setStartPostion(preLen)
-                    .setTotalSize(length)
-                    .setData(data);
-            function.apply(dataMessage);
-        }
-    }
+        ChuckDataMessage dataMessage = new ChuckDataMessage(tid, relativePath);
+        dataMessage.setStartPostion(preLen)
+                .setTotalSize(length)
+                .setData(data);
+        function.apply(dataMessage);
 
-    public LinkedList<ChuckDataMessage> encode(String basePath, File file) throws IOException {
-        LinkedList<ChuckDataMessage> dataMessageList = new LinkedList<>();
-        String relativePath = FileUtils.getRelativePath(basePath, file.getPath());
-        long tid = System.currentTimeMillis();
-        int preLen = 0;
-        byte[] dataBytes;
-        try (FileChuckStream stream = new FileChuckStream(file, CHUCK_SIZE)) {
-            while ((dataBytes = stream.read()) != null) {
-                long length = stream.getLength();
-                ChuckDataMessage dataMessage = new ChuckDataMessage(tid, relativePath);
-                dataMessage.setStartPostion(preLen)
-                        .setTotalSize(length)
-                        .setData(dataBytes);
-                dataMessageList.add(dataMessage);
-                preLen = preLen + dataBytes.length;
-            }
-        }
-        return dataMessageList;
     }
 
     //TODO 转移的文件无法打开，尤其视频文件
