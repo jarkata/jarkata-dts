@@ -42,7 +42,7 @@ public class FileUtils {
     public static void ensureParentPath(String fullPath) {
         int lastIndex = fullPath.lastIndexOf(FILE_SEP);
         if (lastIndex <= 0) {
-            logger.info("路径中不存在路径分隔符");
+            logger.error("路径中不存在路径分隔符");
             return;
         }
         String parentPath = fullPath.substring(0, lastIndex);
@@ -51,7 +51,7 @@ public class FileUtils {
             boolean mkdirs = dir.mkdirs();
             logger.debug("创建结果：{},parentPath={}", mkdirs, parentPath);
         } else {
-            logger.debug("创建目录parentPath={}", parentPath);
+            logger.debug("已创建目录parentPath={}", parentPath);
         }
 
     }

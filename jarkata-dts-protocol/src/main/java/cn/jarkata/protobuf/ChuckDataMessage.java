@@ -2,14 +2,12 @@ package cn.jarkata.protobuf;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
-import java.io.Closeable;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-public class ChuckDataMessage implements Serializable, Closeable {
+public class ChuckDataMessage implements Serializable {
     public static final int CHUCK_SIZE = 1024 * 1024;
     private String mac;
     private long tid;
@@ -17,8 +15,6 @@ public class ChuckDataMessage implements Serializable, Closeable {
     private byte[] data;
     private long startPostion;
     private long totalSize;
-
-    private static final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(CHUCK_SIZE * 2);
 
     public ChuckDataMessage(long tid, String path) {
         this.tid = tid;
@@ -156,10 +152,5 @@ public class ChuckDataMessage implements Serializable, Closeable {
         sb.append(", totalSize=").append(totalSize);
         sb.append('}');
         return sb.toString();
-    }
-
-    @Override
-    public void close() {
-//        buffer.clear();
     }
 }

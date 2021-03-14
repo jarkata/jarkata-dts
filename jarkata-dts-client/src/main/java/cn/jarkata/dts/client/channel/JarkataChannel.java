@@ -113,16 +113,11 @@ public class JarkataChannel {
         sendFileCount.incrementAndGet();
         MessageEncode messageEncode = new MessageEncode();
         messageEncode.encodeChuckStream(basePath, new File(fullPath), (message) -> {
-            ByteBuf buffer = null;
-            try {
-                logger.info("Message={}", message);
-                buffer = message.encode();
-                channel.writeAndFlush(buffer).addListener((listener) -> {
-                    sendFileCount.decrementAndGet();
-                });
-            } finally {
-//                Optional.ofNullable(buffer).ifPresent(ByteBuf::clear);
-            }
+            logger.info("Message={}", message);
+            ByteBuf buffer = message.encode();
+            channel.writeAndFlush(buffer).addListener((listener) -> {
+                sendFileCount.decrementAndGet();
+            });
         });
     }
 

@@ -4,6 +4,8 @@ import cn.jarkata.dts.common.stream.FileChuckStream;
 import cn.jarkata.dts.common.stream.PreFunction;
 import cn.jarkata.dts.common.utils.FileUtils;
 import cn.jarkata.protobuf.ChuckDataMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.io.RandomAccessFile;
 import java.util.LinkedList;
 
 public class MessageEncode {
+
+    private final Logger logger = LoggerFactory.getLogger(MessageEncode.class);
 
     private static final int CHUCK_SIZE = ChuckDataMessage.CHUCK_SIZE;
 
@@ -25,6 +29,7 @@ public class MessageEncode {
      */
     public void encodeChuckStream(String basePath, File file, PreFunction<ChuckDataMessage> function) throws IOException {
         if (file.isHidden()) {
+            logger.warn("忽略隐藏文件:{}", file);
             return;
         }
         String relativePath = FileUtils.getRelativePath(basePath, file.getPath());
@@ -95,13 +100,21 @@ public class MessageEncode {
     }
 
     //TODO 转移的文件无法打开，尤其视频文件
-    public void decode(String basePath, ChuckDataMessage dataMessage) throws IOException {
+    public synchronized void decode(String basePath, ChuckDataMessage dataMessage) throws IOException {
         String fullPath = FileUtils.getFullPath(basePath, dataMessage.getPath());
         FileUtils.ensureParentPath(fullPath);
-        try (RandomAccessFile accessFile = new RandomAccessFile(new File(fullPath), "rw")) {
+        File file = new File(fullPath);
+        long curLen = 0;
+        try (RandomAccessFile accessFile = new RandomAccessFile(file, "rw")) {
             long startPostion = dataMessage.getStartPostion();
+            byte[] data = dataMessage.getData();
+            curLen = data.length;
             accessFile.seek(startPostion);
-            accessFile.write(dataMessage.getData());
+            accessFile.write(data);
+            long totalSize = startPostion + curLen;
+            if (totalSize == dataMessage.getTotalSize()) {
+                logger.info("文件读取完成：{},{}", totalSize, dataMessage);
+            }
         }
     }
 }
